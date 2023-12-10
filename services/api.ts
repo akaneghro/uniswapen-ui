@@ -1,4 +1,5 @@
 import { useAxiosInstance } from "../composables/useAxiosInstance";
+import type PositionInfo from "../types/PositionInfo";
 
 export const getEthPrice = async () => {
     const api = useAxiosInstance();
@@ -24,13 +25,12 @@ export const getTwapPrice = async () => {
     }
 };
 
-export const createPosition = async (amount0: string, amount1: string) => {
+export const createPosition = async (position: PositionInfo) => {
     const api = useAxiosInstance();
 
     try {
         const response = await api.post("/createPosition", {
-            amount0,
-            amount1,
+            position,
         });
 
         return response.data;

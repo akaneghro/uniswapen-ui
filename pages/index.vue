@@ -23,14 +23,14 @@ const connect = async () => {
             params: [
                 {
                     chainId: "0x89",
-                    chainName: "Matic(Polygon) Mainnet",
-                    rpcUrls: ["https://polygon-rpc.com"],
+                    chainName: "Polygon Mainnet",
+                    rpcUrls: ["https://polygon-rpc.com/"],
                     nativeCurrency: {
                         name: "MATIC",
                         symbol: "MATIC",
                         decimals: 18,
                     },
-                    blockExplorerUrls: ["https://polygonscan.com/"],
+                    blockExplorerUrls: ["https://polygonscan.com"],
                 },
             ],
         })

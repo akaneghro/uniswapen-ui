@@ -70,7 +70,12 @@ const addLiquidity = async (wethAmount: string, usdcAmount: string) => {
 
     const signer = await getSigner();
 
-    const tx = await createPosition(wethAmount, usdcAmount);
+    const tx = await createPosition({
+        token0: "USDC",
+        token1: "WETH",
+        amount0: usdcAmount,
+        amount1: wethAmount,
+    });
 
     console.log(tx);
 };
@@ -78,11 +83,9 @@ const addLiquidity = async (wethAmount: string, usdcAmount: string) => {
 onMounted(async () => {
     ethPrice.value = await getEthPrice();
 
-    priceInterval.value = setInterval(async () => {
-        ethPrice.value = await getEthPrice();
-    }, 15000);
-
-    await getSigner();
+    // priceInterval.value = setInterval(async () => {
+    //     ethPrice.value = await getEthPrice();
+    // }, 30000);
 });
 
 onUnmounted(() => {
@@ -94,11 +97,11 @@ onUnmounted(() => {
     <div>
         <Container title="Add liquidity" :back="true">
             <div class="flex flex-row">
-                <ButtonSelect class="mr-1">
-                    <Tag coinLogo="/images/eth.png" coinName="WETH" />
-                </ButtonSelect>
-                <ButtonSelect class="ml-1">
+                <ButtonSelect class="mr-2">
                     <Tag coinLogo="/images/usdc.png" coinName="USDC" />
+                </ButtonSelect>
+                <ButtonSelect class="ml-2">
+                    <Tag coinLogo="/images/eth.png" coinName="WETH" />
                 </ButtonSelect>
             </div>
 
@@ -112,14 +115,6 @@ onUnmounted(() => {
                 <p>Deposit amounts</p>
                 <div class="mt-5">
                     <Input
-                        coinName="WETH"
-                        coinLogo="/images/eth.png"
-                        :amountPrice="`$ ${usdcAmount}`"
-                        coinBalance="0"
-                        v-model="wethAmount"
-                        @input="setUsdcAmount($event)"
-                    />
-                    <Input
                         coinName="USDC"
                         coinLogo="/images/usdc.png"
                         :amountPrice="`$ ${
@@ -130,6 +125,14 @@ onUnmounted(() => {
                         coinBalance="0"
                         v-model="usdcAmount"
                         @input="setWethAmount($event)"
+                    />
+                    <Input
+                        coinName="WETH"
+                        coinLogo="/images/eth.png"
+                        :amountPrice="`$ ${usdcAmount}`"
+                        coinBalance="0"
+                        v-model="wethAmount"
+                        @input="setUsdcAmount($event)"
                         class="mt-3"
                     />
                 </div>
