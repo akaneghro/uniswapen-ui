@@ -4,14 +4,14 @@ defineProps({
         type: String,
         required: true,
     },
-    coinName: {
+    coinSymbol: {
         type: String,
         required: true,
     },
     amountPrice: {
         type: String,
         required: false,
-        default: "-",
+        default: "0",
     },
     coinBalance: {
         type: String,
@@ -48,10 +48,10 @@ defineEmits(["update:modelValue"]);
                     )
                 "
             />
-            <Tag :coinLogo="coinLogo" :coinName="coinName" class="ml-2" />
+            <Tag :coinLogo="coinLogo" :coinSymbol="coinSymbol" class="ml-2" />
         </div>
         <div class="flex justify-between items-center text-sm mt-2">
-            <p class="text-slate-400">{{ amountPrice }}</p>
+            <p class="text-slate-400">$ {{ amountPrice }}</p>
             <div class="flex">
                 <p>Balance:{{ coinBalance }}</p>
                 <p class="text-black bg-slate-50 rounded-2xl px-1 ml-3">MAX</p>

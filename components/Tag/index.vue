@@ -4,7 +4,7 @@ defineProps({
         type: String,
         required: true,
     },
-    coinName: {
+    coinSymbol: {
         type: String,
         required: true,
     },
@@ -14,7 +14,7 @@ defineProps({
 <template>
     <div class="flex flex-row bg-slate-900 rounded-2xl p-2">
         <img :src="coinLogo" class="w-6 h-6 rounded-full" />
-        <p class="text-xl ml-3">{{ coinName }}</p>
+        <p class="text-xl ml-3">{{ coinSymbol }}</p>
     </div>
 </template>
 

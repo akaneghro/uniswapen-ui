@@ -1,91 +1,42 @@
 <script lang="ts" setup>
-import { getEthPrice, createPosition } from "~/services/api";
+import { getEthPrice } from "~/services/api";
+import type Token from "~/types/Token";
 
 definePageMeta({
     title: "Add liquidity",
     layout: "main",
 });
 
-const { $ethers } = useNuxtApp();
+const token0: Token = {
+    symbol: "WETH",
+    name: "WETH",
+    imageUrl: "/images/eth.png",
+    decimals: 18,
+};
 
-const ethPrice = ref(0);
+const token1: Token = {
+    symbol: "USDC",
+    name: "USDC",
+    imageUrl: "/images/usdc.png",
+    decimals: 6,
+};
+
+const { amount0, amount1, setAmount0, setAmount1, addLiquidity } =
+    useLiquidityForm(token0, token1);
+
+const token0Price = ref(0);
+
+const token1Price = ref(0);
 
 const priceInterval: Ref<NodeJS.Timeout | null> = ref(null);
 
-const wethAmount = ref("");
-
-const usdcAmount = ref("");
-
-const getSigner = async () => {
-    const signer = await $ethers.getSigner();
-
-    return signer.address;
-};
-
-const setWethAmount = (event: any) => {
-    if (!validateNumericInput(event)) return;
-
-    wethAmount.value = (Number(usdcAmount.value) / ethPrice.value).toFixed(8);
-
-    if (!usdcAmount.value) wethAmount.value = "";
-};
-
-const setUsdcAmount = (event: any) => {
-    if (!validateNumericInput(event)) return;
-
-    usdcAmount.value = (Number(wethAmount.value) * ethPrice.value).toFixed(2);
-
-    if (!wethAmount.value) usdcAmount.value = "";
-};
-
-const validateNumericInput = (event: any) => {
-    let value = event.target.value;
-
-    if (/[^0-9.]/.test(value)) {
-        value = value.replace(/[^0-9.]/g, "");
-        event.target.value = value;
-        return false;
-    }
-
-    if (
-        (value === "." || value === "0") &&
-        event.inputType !== "deleteContentBackward"
-    ) {
-        event.target.value = "0.";
-        return false;
-    }
-
-    if (value.includes(".") && value.split(".").length >= 3) {
-        event.target.value = value.slice(0, -1);
-        return false;
-    }
-
-    return true;
-};
-
-const addLiquidity = async (wethAmount: string, usdcAmount: string) => {
-    if (!wethAmount || !usdcAmount) return;
-
-    if (Number(wethAmount) <= 0 || Number(usdcAmount) <= 0) return;
-
-    const signer = await getSigner();
-
-    const tx = await createPosition({
-        token0: "USDC",
-        token1: "WETH",
-        amount0: usdcAmount,
-        amount1: wethAmount,
-    });
-
-    console.log(tx);
-};
-
 onMounted(async () => {
-    ethPrice.value = await getEthPrice();
+    token0Price.value = await getEthPrice();
+    token1Price.value = 1;
 
     // priceInterval.value = setInterval(async () => {
     //     ethPrice.value = await getEthPrice();
-    // }, 30000);
+    // }, 30 * 1000);
 });
 
 onUnmounted(() => {
@@ -98,41 +49,53 @@ onUnmounted(() => {
         <Container title="Add liquidity" :back="true">
             <div class="flex flex-row">
                 <ButtonSelect class="mr-2">
-                    <Tag coinLogo="/images/usdc.png" coinName="USDC" />
+                    <Tag
+                        :coinLogo="token0.imageUrl"
+                        :coinSymbol="token0.symbol"
+                    />
                 </ButtonSelect>
                 <ButtonSelect class="ml-2">
-                    <Tag coinLogo="/images/eth.png" coinName="WETH" />
+                    <Tag
+                        :coinLogo="token1.imageUrl"
+                        :coinSymbol="token1.symbol"
+                    />
                 </ButtonSelect>
             </div>
 
             <div class="mt-5">
                 <p class="text-sm mb-1">Current price:</p>
-                <p class="text-lg font-bold">$ {{ ethPrice }}</p>
-                <p class="text-sm text-slate-400 mt-1">USDC per WETH</p>
+                <p class="text-lg font-bold">$ {{ token0Price }}</p>
+                <p class="text-sm text-slate-400 mt-1">
+                    {{ token1.symbol }} per {{ token0.symbol }}
+                </p>
             </div>
 
             <div class="mt-8">
                 <p>Deposit amounts</p>
                 <div class="mt-5">
                     <Input
-                        coinName="USDC"
-                        coinLogo="/images/usdc.png"
-                        :amountPrice="`$ ${
-                            wethAmount !== ''
-                                ? parseInt(wethAmount) * ethPrice
-                                : 0
-                        }`"
+                        :coinSymbol="token0.symbol"
+                        :coinLogo="token0.imageUrl"
+                        :amountPrice="
+                            amount0 !== ''
+                                ? (parseFloat(amount0) * token0Price).toFixed(2)
+                                : '0'
+                        "
                         coinBalance="0"
-                        v-model="usdcAmount"
-                        @input="setWethAmount($event)"
+                        v-model="amount0"
+                        @input="setAmount1($event, token0Price)"
                     />
                     <Input
-                        coinName="WETH"
-                        coinLogo="/images/eth.png"
-                        :amountPrice="`$ ${usdcAmount}`"
+                        :coinSymbol="token1.symbol"
+                        :coinLogo="token1.imageUrl"
+                        :amountPrice="
+                            amount1 !== ''
+                                ? (parseFloat(amount1) * token1Price).toFixed(2)
+                                : '0'
+                        "
                         coinBalance="0"
-                        v-model="wethAmount"
-                        @input="setUsdcAmount($event)"
+                        v-model="amount1"
+                        @input="setAmount0($event, token0Price)"
                         class="mt-3"
                     />
                 </div>
@@ -140,7 +103,7 @@ onUnmounted(() => {
 
             <Button
                 title="Add liquidity"
-                @click="addLiquidity(wethAmount, usdcAmount)"
+                @click="addLiquidity()"
                 class="mt-8"
             />
         </Container>
