@@ -8,8 +8,6 @@ export const useAxiosInstance = () => {
             baseURL: useRuntimeConfig().public.API_BASE_URL,
         });
 
-        console.log("axios instance created!");
-
         instance.interceptors.response.use(
             (response: AxiosResponse) => {
                 return response;

@@ -4,54 +4,29 @@ definePageMeta({
     layout: "main",
 });
 
-const { $client } = useNuxtApp();
-
-const isRequestNetwork = ref(false);
+const connectionStore = useConnectionStore();
 
 const isConnected = ref(false);
 
 watch(isConnected, async (newValue) => {
-    if (newValue) useRouter().push("/pools");
+    if (newValue) {
+        connectionStore.isConnectedMetamask = true;
+        useRouter().push("/pools");
+    }
 });
 
-const connect = async () => {
-    if (!$client) return alert("Please install MetaMask!");
-
-    await $client
-        .request({
-            method: "wallet_addEthereumChain",
-            params: [
-                {
-                    chainId: "0x89",
-                    chainName: "Polygon Mainnet",
-                    rpcUrls: ["https://polygon-rpc.com/"],
-                    nativeCurrency: {
-                        name: "MATIC",
-                        symbol: "MATIC",
-                        decimals: 18,
-                    },
-                    blockExplorerUrls: ["https://polygonscan.com"],
-                },
-            ],
-        })
-        .then(() => {
-            isRequestNetwork.value = true;
-        })
-        .catch((error: any) => {
-            console.log(error);
-        });
-
-    if (!isRequestNetwork.value) alert("Please connect to Polygon Network!");
-
-    await $client.request({ method: "eth_requestAccounts" }).then(() => {
-        isConnected.value = true;
-    });
+const startConnection = async () => {
+    isConnected.value = await connectionStore.connect();
 };
+
+onMounted(async () => {
+    isConnected.value = await connectionStore.connect();
+});
 </script>
 
 <template>
     <div>
-        <Button title="Connect wallet" @click="connect()" />
+        <Button title="Connect wallet" @click="startConnection()" />
     </div>
 </template>
 

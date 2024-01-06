@@ -1,11 +1,30 @@
-export const useEthers = () => {
-    const { $ethers } = useNuxtApp();
+import type { JsonRpcSigner } from "ethers";
 
-    const getSigner = async () => {
-        const signer = await $ethers.getSigner();
+export const useEthers = () => {
+    const { $ethers, $browserProvider } = useNuxtApp();
+
+    const getSignerAccount = async (): Promise<string> => {
+        const signer = await $browserProvider.getSigner();
 
         return signer.address;
     };
 
-    return {};
+    const getTokenBalance = async (
+        tokenAddress: string,
+        account: string
+    ): Promise<string> => {
+        const signer = await $browserProvider.getSigner();
+
+        const contract = new $ethers.Contract(
+            tokenAddress,
+            ["function balanceOf(address) view returns (uint256)"],
+            signer
+        );
+
+        const balance = await contract.balanceOf(account);
+
+        return $ethers.formatEther(balance);
+    };
+
+    return { getSignerAccount, getTokenBalance };
 };

@@ -11,6 +11,7 @@ const token0: Token = {
     symbol: "WETH",
     name: "WETH",
     imageUrl: "/images/eth.png",
+    address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
     decimals: 18,
 };
 
@@ -18,21 +19,40 @@ const token1: Token = {
     symbol: "USDC",
     name: "USDC",
     imageUrl: "/images/usdc.png",
+    address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
     decimals: 6,
 };
+
+const connectionStore = useConnectionStore();
 
 const { amount0, amount1, setAmount0, setAmount1, addLiquidity } =
     useLiquidityForm(token0, token1);
 
+const { getTokenBalance } = useEthers();
+
 const token0Price = ref(0);
 
 const token1Price = ref(0);
+
+const balance0 = ref("");
+
+const balance1 = ref("");
 
 const priceInterval: Ref<NodeJS.Timeout | null> = ref(null);
 
 onMounted(async () => {
     token0Price.value = await getEthPrice();
     token1Price.value = 1;
+
+    balance0.value = await getTokenBalance(
+        token0.address,
+        connectionStore.address
+    );
+
+    balance1.value = await getTokenBalance(
+        token1.address,
+        connectionStore.address
+    );
 
     // priceInterval.value = setInterval(async () => {
     //     ethPrice.value = await getEthPrice();
@@ -81,7 +101,7 @@ onUnmounted(() => {
                                 ? (parseFloat(amount0) * token0Price).toFixed(2)
                                 : '0'
                         "
-                        coinBalance="0"
+                        :coinBalance="balance0"
                         v-model="amount0"
                         @input="setAmount1($event, token0Price)"
                     />
@@ -93,7 +113,7 @@ onUnmounted(() => {
                                 ? (parseFloat(amount1) * token1Price).toFixed(2)
                                 : '0'
                         "
-                        coinBalance="0"
+                        :coinBalance="balance1"
                         v-model="amount1"
                         @input="setAmount0($event, token0Price)"
                         class="mt-3"

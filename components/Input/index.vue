@@ -54,7 +54,11 @@ defineEmits(["update:modelValue"]);
             <p class="text-slate-400">$ {{ amountPrice }}</p>
             <div class="flex">
                 <p>Balance:{{ coinBalance }}</p>
-                <p class="text-black bg-slate-50 rounded-2xl px-1 ml-3">MAX</p>
+                <p
+                    class="cursor-pointer text-black bg-slate-50 rounded-2xl px-1 ml-3"
+                >
+                    MAX
+                </p>
             </div>
         </div>
     </div>
