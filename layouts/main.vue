@@ -20,7 +20,7 @@ const connectionStore = useConnectionStore();
                     @click="connectionStore.connect()"
                 />
                 <p class="cursor-default text-s">
-                    {{ formatAccount(connectionStore.address) }}
+                    {{ formatAccount(connectionStore.owner) }}
                 </p>
             </div>
         </div>

@@ -3,6 +3,13 @@ definePageMeta({
     title: "Pools",
     layout: "main",
 });
+
+const { getPositionCount } = usePositionInfo();
+
+onMounted(async () => {
+    const res = await getPositionCount();
+    console.log(res);
+});
 </script>
 
 <template>

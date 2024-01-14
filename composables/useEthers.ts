@@ -1,18 +1,21 @@
-import type { JsonRpcSigner } from "ethers";
-
 export const useEthers = () => {
     const { $ethers, $browserProvider } = useNuxtApp();
 
     const getSignerAccount = async (): Promise<string> => {
+        if (!$browserProvider) return "";
+
         const signer = await $browserProvider.getSigner();
 
         return signer.address;
     };
 
     const getTokenBalance = async (
+        account: string,
         tokenAddress: string,
-        account: string
+        decimals: number
     ): Promise<string> => {
+        if (!$browserProvider) return "";
+
         const signer = await $browserProvider.getSigner();
 
         const contract = new $ethers.Contract(
@@ -23,7 +26,12 @@ export const useEthers = () => {
 
         const balance = await contract.balanceOf(account);
 
-        return $ethers.formatEther(balance);
+        const formatedBalance = $ethers.formatUnits(
+            balance.toString(),
+            decimals
+        );
+
+        return parseFloat(formatedBalance).toFixed(decimals === 18 ? 4 : 2);
     };
 
     return { getSignerAccount, getTokenBalance };

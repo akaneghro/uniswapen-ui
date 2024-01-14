@@ -38,3 +38,19 @@ export const createPosition = async (position: PositionInfo) => {
         console.log(error);
     }
 };
+
+export const getPositionsCount = async (ownerAddress: string) => {
+    const api = useAxiosInstance();
+
+    try {
+        const response = await api.get("/getPositionCount", {
+            params: {
+                ownerAddress,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+};

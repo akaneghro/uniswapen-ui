@@ -1,8 +1,18 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+defineProps({
+    showText: {
+        type: Boolean,
+        required: true,
+    },
+});
+</script>
 
 <template>
-    <div class="flex flex-row border border-slate-600 rounded-2xl w-full p-2">
-        <slot />
+    <div
+        class="flex flex-row justify-start items-center border border-slate-600 rounded-2xl w-full p-2"
+    >
+        <p v-if="showText" class="text-xl ml-3">Select a token</p>
+        <slot v-else />
     </div>
 </template>
 

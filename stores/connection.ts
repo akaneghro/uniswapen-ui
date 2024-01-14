@@ -3,7 +3,7 @@ export const useConnectionStore = defineStore("connection", () => {
 
     const isConnectedMetamask: Ref<boolean> = ref(false);
     const isConnectedPolygon: Ref<boolean> = ref(false);
-    const address: Ref<string> = ref("");
+    const owner: Ref<string> = ref("");
 
     const connect = async (): Promise<boolean> => {
         if (!$client) {
@@ -36,14 +36,14 @@ export const useConnectionStore = defineStore("connection", () => {
             alert("Please connect to MetaMask!");
             return false;
         } else {
-            address.value = accounts[0];
+            owner.value = accounts[0];
 
             const chainId = await $client.request({ method: "eth_chainId" });
 
             if (chainId === "0x89") isConnectedPolygon.value = true;
 
             $client.on("accountsChanged", (accounts: string[]) => {
-                address.value = accounts[0];
+                owner.value = accounts[0];
             });
 
             $client.on("chainChanged", (chainId: string) => {
@@ -57,7 +57,7 @@ export const useConnectionStore = defineStore("connection", () => {
     return {
         isConnectedMetamask,
         isConnectedPolygon,
-        address,
+        owner,
         connect,
     };
 });
