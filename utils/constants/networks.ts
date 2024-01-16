@@ -1,7 +1,8 @@
 import type Network from "~/types/Network";
+import { POLYGON_CHAINID, MUMBAI_CHAINID } from "./chains";
 
 const POLYGON_NETWORK: Network = {
-    chainId: "0x89",
+    chainId: POLYGON_CHAINID,
     chainName: "Polygon Mainnet",
     rpcUrls: ["https://polygon-rpc.com/"],
     nativeCurrency: {
@@ -12,4 +13,16 @@ const POLYGON_NETWORK: Network = {
     blockExplorerUrls: ["https://polygonscan.com/"],
 };
 
-export const NETWORKS: Network[] = [POLYGON_NETWORK];
+const MUMBAI_NETWORK: Network = {
+    chainId: MUMBAI_CHAINID,
+    chainName: "Mumbai Testnet",
+    rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
+    nativeCurrency: {
+        name: "MATIC",
+        symbol: "MATIC",
+        decimals: 18,
+    },
+    blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+};
+
+export const NETWORKS: Network[] = [POLYGON_NETWORK, MUMBAI_NETWORK];
