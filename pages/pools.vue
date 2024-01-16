@@ -4,22 +4,30 @@ definePageMeta({
     layout: "main",
 });
 
-const { getPositionCount } = usePositionInfo();
+const { positions, getPositions } = usePositionData();
 
 onMounted(async () => {
-    const res = await getPositionCount();
-    console.log(res);
+    await getPositions();
 });
 </script>
 
 <template>
     <div>
         <HeaderPools />
-        <Container class="mt-8">
-            <IconBox :size="40" class="m-auto mt-4" />
-            <p class="text-center pt-4">
-                Your liquidity positions will appear here.
-            </p>
+
+        <Container
+            :title="
+                positions.length ? `Your positions (${positions.length})` : ''
+            "
+            class="mt-8"
+        >
+            <PositionEmpty v-if="!positions.length" />
+
+            <PositionData
+                v-else
+                v-for="position in positions"
+                :position="position"
+            />
         </Container>
     </div>
 </template>

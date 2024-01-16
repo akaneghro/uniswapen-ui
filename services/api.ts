@@ -1,5 +1,6 @@
 import { useAxiosInstance } from "../composables/useAxiosInstance";
-import type PositionInfo from "../types/PositionInfo";
+import type Position from "../types/Position";
+import type PositionData from "../types/PositionData";
 
 export const getEthPrice = async () => {
     const api = useAxiosInstance();
@@ -25,7 +26,7 @@ export const getTwapPrice = async () => {
     }
 };
 
-export const createPosition = async (position: PositionInfo) => {
+export const createPosition = async (position: Position) => {
     const api = useAxiosInstance();
 
     try {
@@ -33,21 +34,27 @@ export const createPosition = async (position: PositionInfo) => {
             position,
         });
 
+        if (response.status !== 200) throw Error;
+
         return response.data;
     } catch (error) {
         console.log(error);
     }
 };
 
-export const getPositionsCount = async (ownerAddress: string) => {
+export const getOpenedPositions = async (ownerAddress: string) => {
     const api = useAxiosInstance();
 
     try {
-        const response = await api.get("/getPositionCount", {
+        const response = await api.get("/getOpenedPositions", {
             params: {
                 ownerAddress,
             },
         });
+
+        console.log(response);
+
+        if (response.status !== 200) throw Error;
 
         return response.data;
     } catch (error) {
