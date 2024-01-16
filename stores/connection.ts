@@ -1,3 +1,5 @@
+import { NETWORKS } from "~/utils/constants/networks";
+
 export const useConnectionStore = defineStore("connection", () => {
     const { $client } = useNuxtApp();
 
@@ -13,19 +15,7 @@ export const useConnectionStore = defineStore("connection", () => {
 
         await $client.request({
             method: "wallet_addEthereumChain",
-            params: [
-                {
-                    chainId: "0x89",
-                    chainName: "Polygon Mainnet",
-                    rpcUrls: ["https://polygon-rpc.com/"],
-                    nativeCurrency: {
-                        name: "MATIC",
-                        symbol: "MATIC",
-                        decimals: 18,
-                    },
-                    blockExplorerUrls: ["https://polygonscan.com"],
-                },
-            ],
+            params: [NETWORKS.find((network) => network.chainId === "0x89")],
         });
 
         const accounts = await $client.request({
