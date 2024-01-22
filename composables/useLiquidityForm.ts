@@ -12,6 +12,9 @@ export const useLiquidityForm = () => {
     const price1: Ref<number> = ref(0);
     const balance0: Ref<string> = ref("");
     const balance1: Ref<string> = ref("");
+    const range: Ref<string> = ref("");
+    const lowerRange: Ref<string> = ref("");
+    const upperRange: Ref<string> = ref("");
     const amount0: Ref<string> = ref("");
     const amount1: Ref<string> = ref("");
     const priceInterval: Ref<NodeJS.Timeout | null> = ref(null);
@@ -59,6 +62,20 @@ export const useLiquidityForm = () => {
             clearInterval(priceInterval.value as NodeJS.Timeout);
     };
 
+    const setRange = (event: any, pairPrice: number) => {
+        if (!validateNumericInput(event)) return;
+
+        lowerRange.value = (
+            pairPrice *
+            (1 - Number(range.value) / 100)
+        ).toFixed(2);
+
+        upperRange.value = (
+            pairPrice *
+            (1 + Number(range.value) / 100)
+        ).toFixed(2);
+    };
+
     const setAmount0 = (event: any, pairPrice: number) => {
         if (!token0.value || !token1.value) return;
 
@@ -83,12 +100,30 @@ export const useLiquidityForm = () => {
         if (!amount0.value) amount1.value = "";
     };
 
+    const setMaxAmount0 = () => {
+        if (!token0.value || !token1.value) return;
+
+        amount0.value = balance0.value;
+
+        setAmount1(amount0.value, price1.value);
+    };
+
+    const setMaxAmount1 = () => {
+        if (!token0.value || !token1.value) return;
+
+        amount1.value = balance1.value;
+
+        setAmount0(amount1.value, price1.value);
+    };
+
     const addLiquidity = async () => {
         if (!token0.value || !token1.value) return;
 
         if (!amount0.value || !amount1.value) return;
 
         if (Number(amount0.value) <= 0 || Number(amount1.value) <= 0) return;
+
+        if (!lowerRange.value || !upperRange.value) return;
 
         //const signer = await getSigner();
 
@@ -97,6 +132,8 @@ export const useLiquidityForm = () => {
             token1: token1.value.symbol,
             amount0: amount0.value,
             amount1: amount1.value,
+            lowerRange: lowerRange.value,
+            upperRange: upperRange.value,
         });
 
         console.log(tx);
@@ -113,10 +150,16 @@ export const useLiquidityForm = () => {
         balance0,
         balance1,
         setBalances,
+        range,
+        lowerRange,
+        upperRange,
+        setRange,
         amount0,
         amount1,
         setAmount0,
         setAmount1,
+        setMaxAmount0,
+        setMaxAmount1,
         addLiquidity,
         startPriceInterval,
         stopPriceInterval,

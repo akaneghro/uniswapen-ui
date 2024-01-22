@@ -19,8 +19,14 @@ const {
     setBalances,
     amount0,
     amount1,
+    range,
+    lowerRange,
+    upperRange,
+    setRange,
     setAmount0,
     setAmount1,
+    setMaxAmount0,
+    setMaxAmount1,
     addLiquidity,
     startPriceInterval,
     stopPriceInterval,
@@ -67,9 +73,24 @@ onUnmounted(() => {
             </div>
 
             <div class="mt-8">
+                <p>Set range (%)</p>
+                <div class="mt-5">
+                    <InputRange
+                        :lowerRange="lowerRange ?? '-'"
+                        :upperRange="upperRange ?? '-'"
+                    >
+                        <Input
+                            v-model="range"
+                            @input="setRange($event, price1)"
+                        />
+                    </InputRange>
+                </div>
+            </div>
+
+            <div class="mt-8">
                 <p>Deposit amounts</p>
                 <div class="mt-5">
-                    <Input
+                    <InputAmount
                         :coinSymbol="token0?.symbol"
                         :coinLogo="token0?.imageUrl"
                         :amountPrice="
@@ -78,10 +99,14 @@ onUnmounted(() => {
                                 : '0'
                         "
                         :coinBalance="balance0"
-                        v-model="amount0"
-                        @input="setAmount1($event, price1)"
-                    />
-                    <Input
+                        @maxBalance="setMaxAmount0()"
+                    >
+                        <Input
+                            v-model="amount0"
+                            @input="setAmount1($event, price1)"
+                        />
+                    </InputAmount>
+                    <InputAmount
                         :coinSymbol="token1?.symbol"
                         :coinLogo="token1?.imageUrl"
                         :amountPrice="
@@ -90,10 +115,14 @@ onUnmounted(() => {
                                 : '0'
                         "
                         :coinBalance="balance1"
-                        v-model="amount1"
-                        @input="setAmount0($event, price1)"
+                        @maxBalance="setMaxAmount1()"
                         class="mt-3"
-                    />
+                    >
+                        <Input
+                            v-model="amount1"
+                            @input="setAmount0($event, price1)"
+                        />
+                    </InputAmount>
                 </div>
             </div>
 

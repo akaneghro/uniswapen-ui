@@ -1,6 +1,5 @@
 import { useAxiosInstance } from "../composables/useAxiosInstance";
 import type Position from "../types/Position";
-import type PositionData from "../types/PositionData";
 
 export const getEthPrice = async () => {
     const api = useAxiosInstance();
@@ -51,8 +50,6 @@ export const getOpenedPositions = async (ownerAddress: string) => {
                 ownerAddress,
             },
         });
-
-        console.log(response);
 
         if (response.status !== 200) throw Error;
 

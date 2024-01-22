@@ -1,5 +1,5 @@
 export const validateNumericInput = (event: any) => {
-    let value = event.target.value;
+    let value = event.target?.value ?? event;
 
     if (/[^0-9.]/.test(value)) {
         value = value.replace(/[^0-9.]/g, "");

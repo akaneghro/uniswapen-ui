@@ -3,4 +3,6 @@ export default interface Position {
     amount0: string;
     token1: string;
     amount1: string;
+    lowerRange: string;
+    upperRange: string;
 }

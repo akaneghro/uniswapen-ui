@@ -4,7 +4,7 @@ import { POLYGON_CHAINID, MUMBAI_CHAINID } from "./chains";
 const POLYGON_NETWORK: Network = {
     chainId: POLYGON_CHAINID,
     chainName: "Polygon Mainnet",
-    rpcUrls: ["https://polygon-rpc.com/"],
+    rpcUrls: ["https://polygon-mainnet.infura.io"],
     nativeCurrency: {
         name: "MATIC",
         symbol: "MATIC",

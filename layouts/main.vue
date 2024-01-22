@@ -5,7 +5,7 @@ const connectionStore = useConnectionStore();
 </script>
 
 <template>
-    <div class="w-screen h-screen">
+    <div class="h-screen">
         <div class="flex justify-between p-4">
             <p>Uniswapen V1</p>
             <div class="flex justify-center items-center">
