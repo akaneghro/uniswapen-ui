@@ -37,8 +37,10 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div>
-        <Button title="Connect wallet" @click="startConnection()" />
+    <div class="h-screen">
+        <div class="relative top-1/3">
+            <Button title="Connect wallet" @click="startConnection()" />
+        </div>
     </div>
 </template>
 

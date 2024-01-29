@@ -1,8 +1,8 @@
 export default interface Position {
-    token0: string;
+    token0Symbol: string;
+    token1Symbol: string;
     amount0: string;
-    token1: string;
     amount1: string;
-    lowerRange: string;
-    upperRange: string;
+    fee: number;
+    range: number;
 }

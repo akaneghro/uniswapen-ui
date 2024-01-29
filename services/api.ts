@@ -1,23 +1,16 @@
 import { useAxiosInstance } from "../composables/useAxiosInstance";
 import type Position from "../types/Position";
 
-export const getEthPrice = async () => {
+export const getPrice = async (token0Symbol: string, token1Symbol: string) => {
     const api = useAxiosInstance();
 
     try {
-        const response = await api.get("/ethPrice");
-
-        return response.data;
-    } catch (error) {
-        console.log(error);
-    }
-};
-
-export const getTwapPrice = async () => {
-    const api = useAxiosInstance();
-
-    try {
-        const response = await api.get("/twapPrice");
+        const response = await api.get("/getPrice", {
+            params: {
+                token0Symbol,
+                token1Symbol,
+            },
+        });
 
         return response.data;
     } catch (error) {

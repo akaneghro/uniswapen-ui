@@ -12,7 +12,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div>
+    <div class="pt-12 pb-12">
         <HeaderPools />
 
         <Container

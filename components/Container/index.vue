@@ -13,8 +13,7 @@ defineProps({
 
 <template>
     <div
-        class="p-6 bg-slate-900 rounded-2xl border border-slate-600"
-        style="box-shadow: 0px 0px 25px 1px #ffffff30"
+        class="p-6 bg-slate-900 rounded-2xl border border-slate-600 cu-box-shadow"
     >
         <div class="relative mb-5">
             <button

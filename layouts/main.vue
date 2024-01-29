@@ -24,7 +24,7 @@ const connectionStore = useConnectionStore();
                 </p>
             </div>
         </div>
-        <div class="relative top-1/3 -translate-y-1/3">
+        <div>
             <div class="flex justify-center">
                 <div class="w-full max-w-xl">
                     <slot />
