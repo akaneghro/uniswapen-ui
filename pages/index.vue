@@ -8,29 +8,41 @@ const { $client } = useNuxtApp();
 
 const connectionStore = useConnectionStore();
 
+const { checkWalletExists } = useWalletManager();
+
 const isConnected = ref(false);
+
+const startConnection = async () => {
+    isConnected.value = await connectionStore.connect();
+};
+
+const checkWallet = async () => {
+    const walletExists = await checkWalletExists();
+
+    if (!walletExists) useRouter().push("/wallet");
+    else useRouter().push("/positions");
+};
 
 watch(isConnected, async (newValue) => {
     if (newValue) {
         connectionStore.isConnectedMetamask = true;
-        useRouter().push("/pools");
+        await checkWallet();
     } else {
         connectionStore.isConnectedMetamask = false;
         useRouter().push("/");
     }
 });
 
-const startConnection = async () => {
-    isConnected.value = await connectionStore.connect();
-};
-
 onMounted(async () => {
     isConnected.value = await connectionStore.connect();
 
     if (isConnected.value) {
-        $client.on("accountsChanged", (accounts: string[]) => {
+        $client.on("accountsChanged", async (accounts: string[]) => {
             if (accounts.length === 0) isConnected.value = false;
-            else connectionStore.owner = accounts[0];
+            else {
+                connectionStore.owner = accounts[0];
+                await checkWallet();
+            }
         });
     }
 });

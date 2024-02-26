@@ -1,18 +1,20 @@
-import { createPosition, getPrice } from "../services/api";
-import type Token from "~/types/Token";
-import type Price from "~/types/Price";
+import { getCurrentPrices } from "../services/pool.api";
+import { create } from "../services/position.api";
+import { Token } from "~/models/Token";
+import { Price } from "~/models/Price";
+import { PositionRequest } from "~/models/PositionRequest";
 
 export const useLiquidityForm = () => {
     const connectionStore = useConnectionStore();
 
     const { getTokenBalance } = useEthers();
 
+    const isAddingLiquidity = ref(false);
     const token0: Ref<Token | undefined> = ref();
     const token1: Ref<Token | undefined> = ref();
-    const price0: Ref<string> = ref("");
-    const price1: Ref<string> = ref("");
-    const priceUsd0: Ref<string> = ref("");
-    const priceUsd1: Ref<string> = ref("");
+    const poolPrice: Ref<string> = ref("");
+    const token0UsdPrice: Ref<string> = ref("");
+    const token1UsdPrice: Ref<string> = ref("");
     const balance0: Ref<string> = ref("");
     const balance1: Ref<string> = ref("");
     const range: Ref<string> = ref("");
@@ -22,6 +24,7 @@ export const useLiquidityForm = () => {
     const amount1: Ref<string> = ref("");
     const fee: Ref<number> = ref(0);
     const priceInterval: Ref<NodeJS.Timeout | null> = ref(null);
+    const setBalanceError: Ref<boolean> = ref(false);
 
     const setToken0 = (token: Token) => {
         token0.value = token;
@@ -32,43 +35,54 @@ export const useLiquidityForm = () => {
     };
 
     const setPrices = async () => {
-        const prices: Price = await getPrice(
-            token0.value?.symbol ?? "",
-            token1.value?.symbol ?? ""
+        const prices: Price = await getCurrentPrices(
+            token0.value?.idToken ?? 0,
+            token1.value?.idToken ?? 0,
+            fee.value
         );
 
-        price0.value = prices.price0;
-        price1.value = prices.price1;
-        priceUsd0.value = prices.priceUsd0;
-        priceUsd1.value = prices.priceUsd1;
+        poolPrice.value = prices.poolPrice;
+        token0UsdPrice.value = prices.token0UsdPrice;
+        token1UsdPrice.value = prices.token1UsdPrice;
     };
 
     const setBalances = async () => {
         if (!token0.value || !token1.value) return;
 
-        const token0Balance: string = await getTokenBalance(
-            connectionStore.owner,
-            token0.value.address,
-            token0.value.decimals
-        );
+        try {
+            setBalanceError.value = false;
 
-        const token1Balance: string = await getTokenBalance(
-            connectionStore.owner,
-            token1.value.address,
-            token1.value.decimals
-        );
+            const token0Balance: string = await getTokenBalance(
+                connectionStore.owner,
+                token0.value.contract,
+                token0.value.decimals
+            );
 
-        balance0.value = token0Balance;
-        balance1.value = token1Balance;
+            const token1Balance: string = await getTokenBalance(
+                connectionStore.owner,
+                token1.value.contract,
+                token1.value.decimals
+            );
+
+            balance0.value = token0Balance;
+            balance1.value = token1Balance;
+        } catch (error) {
+            setBalanceError.value = true;
+            console.log(error);
+        }
     };
 
-    const startPriceInterval = () => {
+    const startDataInterval = () => {
         priceInterval.value = setInterval(async () => {
             await setPrices();
+            await setBalances();
+
+            if (amount0.value) setAmount1(amount0.value);
+            if (amount1.value) setAmount0(amount1.value);
         }, 30 * 1000);
     };
 
-    const stopPriceInterval = () => {
+    const stopDataInterval = () => {
         if (priceInterval.value)
             clearInterval(priceInterval.value as NodeJS.Timeout);
     };
@@ -85,12 +99,12 @@ export const useLiquidityForm = () => {
         range.value = event.target.value;
 
         lowerRange.value = (
-            parseFloat(price1.value) *
+            parseFloat(poolPrice.value) *
             (1 - Number(range.value) / 100)
         ).toFixed(token1.value?.decimals ?? 0);
 
         upperRange.value = (
-            parseFloat(price1.value) *
+            parseFloat(poolPrice.value) *
             (1 + Number(range.value) / 100)
         ).toFixed(token1.value?.decimals ?? 0);
     };
@@ -101,7 +115,7 @@ export const useLiquidityForm = () => {
         if (!validateNumericInput(event)) return;
 
         amount0.value = (
-            Number(amount1.value) * parseFloat(price0.value)
+            Number(amount1.value) / parseFloat(poolPrice.value)
         ).toFixed(token0.value.decimals);
 
         if (!amount1.value) amount0.value = "";
@@ -113,7 +127,7 @@ export const useLiquidityForm = () => {
         if (!validateNumericInput(event)) return;
 
         amount1.value = (
-            Number(amount0.value) * parseFloat(price1.value)
+            Number(amount0.value) * parseFloat(poolPrice.value)
         ).toFixed(token1.value.decimals);
 
         if (!amount0.value) amount1.value = "";
@@ -135,39 +149,47 @@ export const useLiquidityForm = () => {
         setAmount0(amount1.value);
     };
 
-    const addLiquidity = async () => {
-        if (!token0.value || !token1.value) return;
+    const addLiquidity = async (): Promise<boolean> => {
+        try {
+            isAddingLiquidity.value = true;
 
-        if (!amount0.value || !amount1.value) return;
+            if (!token0.value || !token1.value) return false;
 
-        if (Number(amount0.value) <= 0 || Number(amount1.value) <= 0) return;
+            if (!amount0.value || !amount1.value) return false;
 
-        if (!lowerRange.value || !upperRange.value) return;
+            if (Number(amount0.value) <= 0 || Number(amount1.value) <= 0)
+                return false;
 
-        if (fee.value == 0) return;
+            if (!lowerRange.value || !upperRange.value) return false;
 
-        //const signer = await getSigner();
+            if (fee.value == 0) return false;
 
-        const tx = await createPosition({
-            token0Symbol: token0.value.symbol,
-            token1Symbol: token1.value.symbol,
-            amount0: amount0.value,
-            amount1: amount1.value,
-            fee: fee.value,
-            range: parseFloat(range.value) / 100,
-        });
-
-        console.log(tx);
+            return await create(
+                new PositionRequest({
+                    publicKey: connectionStore.owner,
+                    chainId: connectionStore.chainId,
+                    idToken0: token0.value.idToken,
+                    idToken1: token1.value.idToken,
+                    amount0: amount0.value,
+                    amount1: amount1.value,
+                    fee: fee.value,
+                    range: parseFloat(range.value) / 100,
+                })
+            );
+        } finally {
+            isAddingLiquidity.value = false;
+        }
     };
 
     return {
+        isAddingLiquidity,
         setToken0,
         setToken1,
         token0,
         token1,
-        price1,
-        priceUsd0,
-        priceUsd1,
+        poolPrice,
+        token0UsdPrice,
+        token1UsdPrice,
         setPrices,
         balance0,
         balance1,
@@ -184,7 +206,8 @@ export const useLiquidityForm = () => {
         setMaxAmount1,
         fee,
         addLiquidity,
-        startPriceInterval,
-        stopPriceInterval,
+        startDataInterval,
+        stopDataInterval,
+        setBalanceError,
     };
 };

@@ -12,7 +12,7 @@ defineProps({
 </script>
 
 <template>
-    <InputContainer>
+    <ContainerInside>
         <div>
             <slot />
             <p class="text-slate-400 text-sm mt-2">
@@ -21,7 +21,7 @@ defineProps({
                 <span class="text-white">{{ upperRange }}</span>
             </p>
         </div>
-    </InputContainer>
+    </ContainerInside>
 </template>
 
 <style lang="scss" scoped></style>

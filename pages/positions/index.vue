@@ -1,19 +1,19 @@
 <script lang="ts" setup>
 definePageMeta({
-    title: "Pools",
+    title: "Positions",
     layout: "main",
 });
 
-const { positions, getPositions } = usePositionData();
+const { positions, getOwnerPositions } = usePositionList();
 
 onMounted(async () => {
-    await getPositions();
+    await getOwnerPositions();
 });
 </script>
 
 <template>
     <div class="pt-12 pb-12">
-        <HeaderPools />
+        <HeaderPositions />
 
         <Container
             :title="
@@ -23,10 +23,10 @@ onMounted(async () => {
         >
             <PositionEmpty v-if="!positions.length" />
 
-            <PositionData
+            <PositionDataRow
                 v-else
                 v-for="position in positions"
-                :position="position"
+                :positionData="position"
             />
         </Container>
     </div>

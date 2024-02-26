@@ -17,11 +17,10 @@ defineProps({
 
 <template>
     <button
-        class="text-center text-xl py-4 px-6 bg-slate-50 hover:bg-slate-200 disabled:opacity-50 text-black rounded-2xl w-full"
-        :disabled="disabled || isLoading"
+        class="text-center text-base py-1 px-3 bg-transparent bg-slate-600 text-white rounded-2xl border border-slate-300"
+        :disabled="disabled"
     >
-        <p v-if="!isLoading">{{ title }}</p>
-        <Loader v-else color="gray" />
+        {{ title }}
     </button>
 </template>
 

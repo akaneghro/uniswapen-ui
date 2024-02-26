@@ -2,7 +2,7 @@
 
 <template>
     <div class="flex flex-row justify-between">
-        <TextTitle text="Pools" />
+        <TextTitle text="Positions" />
         <ButtonSmall
             title="+ New position"
             @click="useRouter().push('/add-liquidity')"

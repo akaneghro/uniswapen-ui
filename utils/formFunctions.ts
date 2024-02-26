@@ -1,4 +1,4 @@
-export const validateNumericInput = (event: any) => {
+export const validateNumericInput = (event: any): boolean => {
     let value = event.target?.value ?? event;
 
     if (/[^0-9.]/.test(value)) {
@@ -21,4 +21,8 @@ export const validateNumericInput = (event: any) => {
     }
 
     return true;
+};
+
+export const copyToClipboard = async (text: string): Promise<void> => {
+    await navigator.clipboard.writeText(text);
 };

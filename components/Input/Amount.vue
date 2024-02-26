@@ -10,7 +10,7 @@ defineProps({
         required: true,
         default: "",
     },
-    amountPrice: {
+    amountUsd: {
         type: String,
         required: false,
         default: "0",
@@ -25,13 +25,17 @@ defineEmits(["maxBalance"]);
 </script>
 
 <template>
-    <InputContainer>
+    <ContainerInside>
         <div class="flex justify-between items-center">
             <slot />
-            <Tag :coinLogo="coinLogo" :coinSymbol="coinSymbol" class="ml-2" />
+            <TokenTag
+                :coinLogo="coinLogo"
+                :coinSymbol="coinSymbol"
+                class="ml-2"
+            />
         </div>
         <div class="flex justify-between items-center text-sm mt-2">
-            <p class="text-slate-400">$ {{ amountPrice }}</p>
+            <p class="text-slate-400">$ {{ amountUsd }}</p>
             <div class="flex">
                 <p>Balance:{{ coinBalance }}</p>
                 <p
@@ -42,7 +46,7 @@ defineEmits(["maxBalance"]);
                 </p>
             </div>
         </div>
-    </InputContainer>
+    </ContainerInside>
 </template>
 
 <style lang="scss" scoped></style>

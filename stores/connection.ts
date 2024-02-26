@@ -4,15 +4,20 @@ import { NETWORKS } from "~/utils/constants/networks";
 export const useConnectionStore = defineStore("connection", () => {
     const { $client } = useNuxtApp();
 
+    const tokenStore = useTokenStore();
+
     const isConnectedMetamask: Ref<boolean> = ref(false);
     const isConnectedPolygon: Ref<boolean> = ref(false);
     const owner: Ref<string> = ref("");
+    const chainId: Ref<string> = ref("");
 
     const connect = async (): Promise<boolean> => {
         if (!$client) {
             alert("Please install MetaMask!");
             return false;
         }
+
+        addChainListener();
 
         const accounts = await $client.request({
             method: "eth_requestAccounts",
@@ -22,17 +27,19 @@ export const useConnectionStore = defineStore("connection", () => {
 
         owner.value = accounts[0];
 
-        const chainId = await $client.request({ method: "eth_chainId" });
+        chainId.value = await $client.request({ method: "eth_chainId" });
 
-        if (chainId === POLYGON_CHAINID) isConnectedPolygon.value = true;
-        else return false;
+        await tokenStore.getNetworkTokens(chainId.value);
 
-        $client.on("chainChanged", (chainId: string) => {
-            if (chainId !== POLYGON_CHAINID) isConnectedPolygon.value = false;
-            else isConnectedPolygon.value = true;
+        return chainId.value === POLYGON_CHAINID;
+    };
+
+    const addChainListener = () => {
+        $client.on("chainChanged", async (chainId: string) => {
+            isConnectedPolygon.value = chainId === POLYGON_CHAINID;
+
+            await tokenStore.getNetworkTokens(chainId);
         });
-
-        return true;
     };
 
     const addNetwork = async () => {
@@ -53,6 +60,8 @@ export const useConnectionStore = defineStore("connection", () => {
         isConnectedMetamask,
         isConnectedPolygon,
         owner,
+        chainId,
         connect,
+        addChainListener,
     };
 });

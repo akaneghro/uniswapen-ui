@@ -5,6 +5,21 @@ defineProps({
         required: false,
         default: "",
     },
+    type: {
+        type: String,
+        required: false,
+        default: "text",
+    },
+    maxlength: {
+        type: String,
+        required: false,
+        default: "79",
+    },
+    placeholder: {
+        type: String,
+        required: false,
+        default: "-",
+    },
 });
 
 defineEmits(["update:modelValue"]);
@@ -13,14 +28,13 @@ defineEmits(["update:modelValue"]);
 <template>
     <input
         class="basis-2/3 outline-none caret-white bg-slate-800 text-white text-2xl w-full"
-        imputmode="decimal"
         autocomplete="off"
         autocorrect="off"
-        type="text"
+        :type="type"
         minlength="1"
-        maxlength="79"
+        :maxlength="maxlength"
         spellcheck="false"
-        placeholder="0.0"
+        :placeholder="placeholder"
         :value="modelValue"
         @input="
             $emit(
