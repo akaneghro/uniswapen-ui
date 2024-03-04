@@ -54,13 +54,13 @@ export const useLiquidityForm = () => {
 
             const token0Balance: string = await getTokenBalance(
                 connectionStore.owner,
-                token0.value.contract,
+                token0.value.address,
                 token0.value.decimals
             );
 
             const token1Balance: string = await getTokenBalance(
                 connectionStore.owner,
-                token1.value.contract,
+                token1.value.address,
                 token1.value.decimals
             );
 

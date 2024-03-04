@@ -1,5 +1,6 @@
 import { Wallet } from "~/models/Wallet";
-import { checkSecret, createWallet, getWallet } from "~/services/wallet.api";
+import { checkSecret } from "~/services/global.api";
+import { createWallet, getWallet } from "~/services/wallet.api";
 
 export const useWalletManager = () => {
     const connectionStore = useConnectionStore();

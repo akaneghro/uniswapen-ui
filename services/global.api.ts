@@ -1,19 +1,18 @@
 import { type AxiosResponse } from "axios";
-import { Token } from "../models/Token";
 
-export const getTokens = async (chainId: string): Promise<Token[]> => {
+export const checkSecret = async (secret: string): Promise<boolean> => {
     const api = useAxiosInstance();
 
     try {
-        const response: AxiosResponse = await api.get("/token/getTokens", {
+        const response: AxiosResponse = await api.get("/global/checkSecret", {
             params: {
-                chainId,
+                secret,
             },
         });
 
         if (response.status !== 200) throw Error;
 
-        return response.data as Token[];
+        return response.data as boolean;
     } catch (error) {
         console.log(error);
 

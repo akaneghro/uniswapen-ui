@@ -53,7 +53,7 @@ const {
     checkApproveSwapRouter,
     approvePositionManager,
     approveSwapRouter,
-} = useTokenContractManager();
+} = useApproveManager();
 
 watch([() => token0.value, () => token1.value, () => fee.value], async () => {
     if (token0.value && token1.value) {

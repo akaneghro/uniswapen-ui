@@ -16,13 +16,13 @@ defineProps({
             <div class="flex flex-row">
                 <p>
                     <a
-                        :href="`https://polygonscan.com/token/${positionData.token0.contract}`"
+                        :href="`https://polygonscan.com/token/${positionData.token0.address}`"
                         target="_blank"
                         >{{ positionData.token0.symbol }}</a
                     >
                     /
                     <a
-                        :href="`https://polygonscan.com/token/${positionData.token1.contract}`"
+                        :href="`https://polygonscan.com/token/${positionData.token1.address}`"
                         target="_blank"
                         >{{ positionData.token1.symbol }}</a
                     >

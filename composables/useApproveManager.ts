@@ -2,12 +2,9 @@ import {
     POSITION_MANAGER_CODE,
     SWAP_ROUTER_CODE,
 } from "~/utils/constants/contracts";
-import {
-    checkTokenContractApprove,
-    approveTokenContract,
-} from "~/services/wallet.api";
+import { checkApprove, createApprove } from "~/services/approve.api";
 
-export const useTokenContractManager = () => {
+export const useApproveManager = () => {
     const connectionStore = useConnectionStore();
 
     const isLoading = ref(false);
@@ -36,7 +33,7 @@ export const useTokenContractManager = () => {
         try {
             isLoading.value = true;
 
-            const response = await checkTokenContractApprove(
+            const response = await checkApprove(
                 connectionStore.owner,
                 tokenId,
                 POSITION_MANAGER_CODE,
@@ -56,7 +53,7 @@ export const useTokenContractManager = () => {
         try {
             isLoading.value = true;
 
-            const response = await checkTokenContractApprove(
+            const response = await checkApprove(
                 connectionStore.owner,
                 tokenId,
                 SWAP_ROUTER_CODE,
@@ -77,7 +74,7 @@ export const useTokenContractManager = () => {
         try {
             approving.value = true;
 
-            const response = await approveTokenContract(
+            const response = await createApprove(
                 connectionStore.owner,
                 tokenId,
                 POSITION_MANAGER_CODE,
@@ -98,7 +95,7 @@ export const useTokenContractManager = () => {
         try {
             approving.value = true;
 
-            const response = await approveTokenContract(
+            const response = await createApprove(
                 connectionStore.owner,
                 tokenId,
                 SWAP_ROUTER_CODE,

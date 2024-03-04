@@ -1,6 +1,6 @@
 export class Token {
     idToken: number = 0;
-    contract: string = "";
+    address: string = "";
     code: string = "";
     name: string = "";
     symbol: string = "";
