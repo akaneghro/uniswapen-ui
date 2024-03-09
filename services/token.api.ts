@@ -1,7 +1,7 @@
 import { type AxiosResponse } from "axios";
 import { Token } from "../models/Token";
 
-export const getTokens = async (chainId: string): Promise<Token[]> => {
+export const getTokens = async (chainId: number): Promise<Token[]> => {
     const api = useAxiosInstance();
 
     try {

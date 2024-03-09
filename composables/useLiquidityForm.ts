@@ -6,6 +6,7 @@ import { PositionRequest } from "~/models/PositionRequest";
 
 export const useLiquidityForm = () => {
     const connectionStore = useConnectionStore();
+    const networkStore = useNetworkStore();
 
     const { getTokenBalance } = useEthers();
 
@@ -167,7 +168,7 @@ export const useLiquidityForm = () => {
             return await create(
                 new PositionRequest({
                     publicKey: connectionStore.owner,
-                    chainId: connectionStore.chainId,
+                    chainId: networkStore.currentNetwork?.chainId ?? 0,
                     idToken0: token0.value.idToken,
                     idToken1: token1.value.idToken,
                     amount0: amount0.value,

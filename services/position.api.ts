@@ -25,7 +25,7 @@ export const create = async (position: PositionRequest): Promise<boolean> => {
 
 export const getAll = async (
     publicKey: string,
-    chainId: string
+    chainId: number
 ): Promise<PositionData[]> => {
     const api = useAxiosInstance();
 

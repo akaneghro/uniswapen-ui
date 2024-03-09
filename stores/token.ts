@@ -2,13 +2,17 @@ import { getTokens } from "~/services/token.api";
 import { Token } from "~/models/Token";
 
 export const useTokenStore = defineStore("token", () => {
+    const networkStore = useNetworkStore();
+
     const tokens = ref<Token[]>([]);
     const isLoading = ref(false);
 
-    const getNetworkTokens = async (chainId: string) => {
+    const getNetworkTokens = async () => {
         isLoading.value = true;
         try {
-            const response: Token[] = await getTokens(chainId);
+            const response: Token[] = await getTokens(
+                networkStore.currentNetwork?.chainId ?? 0
+            );
 
             tokens.value = response;
         } finally {

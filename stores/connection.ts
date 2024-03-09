@@ -1,20 +1,16 @@
-import { POLYGON_CHAINID } from "~/utils/constants/chains";
-import { NETWORKS } from "~/utils/constants/networks";
-
 export const useConnectionStore = defineStore("connection", () => {
     const { $client } = useNuxtApp();
 
+    const networkStore = useNetworkStore();
     const tokenStore = useTokenStore();
 
     const isConnectedMetamask: Ref<boolean> = ref(false);
-    const isConnectedPolygon: Ref<boolean> = ref(false);
     const owner: Ref<string> = ref("");
-    const chainId: Ref<string> = ref("");
 
-    const connect = async (): Promise<boolean> => {
+    const connect = async (isConnected: Ref<boolean>): Promise<void> => {
         if (!$client) {
             alert("Please install MetaMask!");
-            return false;
+            return;
         }
 
         addChainListener();
@@ -23,44 +19,46 @@ export const useConnectionStore = defineStore("connection", () => {
             method: "eth_requestAccounts",
         });
 
-        if (accounts.length === 0) return false;
+        if (accounts.length === 0) return;
 
         owner.value = accounts[0];
 
-        chainId.value = await $client.request({ method: "eth_chainId" });
+        const chainId = await $client.request({ method: "eth_chainId" });
 
-        await tokenStore.getNetworkTokens(chainId.value);
+        await networkStore.getAllNetworks();
 
-        return chainId.value === POLYGON_CHAINID;
+        if (!networkStore.checkNetworkExists(chainId)) return;
+
+        await tokenStore.getNetworkTokens();
+
+        isConnected.value = true;
     };
 
     const addChainListener = () => {
         $client.on("chainChanged", async (chainId: string) => {
-            isConnectedPolygon.value = chainId === POLYGON_CHAINID;
+            if (!networkStore.checkNetworkExists(chainId)) return;
 
-            await tokenStore.getNetworkTokens(chainId);
+            await tokenStore.getNetworkTokens();
         });
     };
 
-    const addNetwork = async () => {
-        if (!$client) {
-            alert("Please install MetaMask!");
-            return false;
-        }
+    // const addNetwork = async () => {
+    //     if (!$client) {
+    //         alert("Please install MetaMask!");
+    //         return false;
+    //     }
 
-        await $client.request({
-            method: "wallet_addEthereumChain",
-            params: [
-                NETWORKS.find((network) => network.chainId === POLYGON_CHAINID),
-            ],
-        });
-    };
+    //     await $client.request({
+    //         method: "wallet_addEthereumChain",
+    //         params: [
+    //             NETWORKS.find((network) => network.chainId === POLYGON_CHAINID),
+    //         ],
+    //     });
+    // };
 
     return {
         isConnectedMetamask,
-        isConnectedPolygon,
         owner,
-        chainId,
         connect,
         addChainListener,
     };

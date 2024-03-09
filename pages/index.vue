@@ -13,7 +13,7 @@ const { checkWalletExists } = useWalletManager();
 const isConnected = ref(false);
 
 const startConnection = async () => {
-    isConnected.value = await connectionStore.connect();
+    await connectionStore.connect(isConnected);
 };
 
 const checkWallet = async () => {
@@ -34,17 +34,15 @@ watch(isConnected, async (newValue) => {
 });
 
 onMounted(async () => {
-    isConnected.value = await connectionStore.connect();
+    await connectionStore.connect(isConnected);
 
-    if (isConnected.value) {
-        $client.on("accountsChanged", async (accounts: string[]) => {
-            if (accounts.length === 0) isConnected.value = false;
-            else {
-                connectionStore.owner = accounts[0];
-                await checkWallet();
-            }
-        });
-    }
+    $client.on("accountsChanged", async (accounts: string[]) => {
+        if (accounts.length === 0) isConnected.value = false;
+        else {
+            connectionStore.owner = accounts[0];
+            await checkWallet();
+        }
+    });
 });
 </script>
 

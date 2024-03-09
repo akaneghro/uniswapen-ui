@@ -6,6 +6,7 @@ import { checkApprove, createApprove } from "~/services/approve.api";
 
 export const useApproveManager = () => {
     const connectionStore = useConnectionStore();
+    const networkStore = useNetworkStore();
 
     const isLoading = ref(false);
     const isApprovedPM0 = ref(false);
@@ -27,7 +28,7 @@ export const useApproveManager = () => {
     });
 
     const checkApprovePositionManager = async (
-        tokenId: number,
+        idToken: number,
         approved: Ref<boolean>
     ) => {
         try {
@@ -35,9 +36,9 @@ export const useApproveManager = () => {
 
             const response = await checkApprove(
                 connectionStore.owner,
-                tokenId,
+                idToken,
                 POSITION_MANAGER_CODE,
-                connectionStore.chainId
+                networkStore.currentNetwork?.chainId ?? 0
             );
 
             if (response) approved.value = true;
@@ -47,7 +48,7 @@ export const useApproveManager = () => {
     };
 
     const checkApproveSwapRouter = async (
-        tokenId: number,
+        idToken: number,
         approved: Ref<boolean>
     ) => {
         try {
@@ -55,9 +56,9 @@ export const useApproveManager = () => {
 
             const response = await checkApprove(
                 connectionStore.owner,
-                tokenId,
+                idToken,
                 SWAP_ROUTER_CODE,
-                connectionStore.chainId
+                networkStore.currentNetwork?.chainId ?? 0
             );
 
             if (response) approved.value = true;
@@ -67,7 +68,7 @@ export const useApproveManager = () => {
     };
 
     const approvePositionManager = async (
-        tokenId: number,
+        idToken: number,
         approved: Ref<boolean>,
         approving: Ref<boolean>
     ) => {
@@ -76,9 +77,9 @@ export const useApproveManager = () => {
 
             const response = await createApprove(
                 connectionStore.owner,
-                tokenId,
+                idToken,
                 POSITION_MANAGER_CODE,
-                connectionStore.chainId
+                networkStore.currentNetwork?.chainId ?? 0
             );
 
             if (response) approved.value = true;
@@ -88,7 +89,7 @@ export const useApproveManager = () => {
     };
 
     const approveSwapRouter = async (
-        tokenId: number,
+        idToken: number,
         approved: Ref<boolean>,
         approving: Ref<boolean>
     ) => {
@@ -97,9 +98,9 @@ export const useApproveManager = () => {
 
             const response = await createApprove(
                 connectionStore.owner,
-                tokenId,
+                idToken,
                 SWAP_ROUTER_CODE,
-                connectionStore.chainId
+                networkStore.currentNetwork?.chainId ?? 0
             );
 
             if (response) approved.value = true;

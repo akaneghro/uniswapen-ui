@@ -1,11 +1,10 @@
 import { type AxiosResponse } from "axios";
-import { Approve } from "../models/Approve";
 
 export const checkApprove = async (
     publicKey: string,
-    tokenId: number,
+    idToken: number,
     contractCode: string,
-    chainId: string
+    chainId: number
 ): Promise<boolean> => {
     const api = useAxiosInstance();
 
@@ -13,7 +12,7 @@ export const checkApprove = async (
         const response: AxiosResponse = await api.get("/approve/checkApprove", {
             params: {
                 publicKey,
-                tokenId,
+                idToken,
                 contractCode,
                 chainId,
             },
@@ -31,10 +30,10 @@ export const checkApprove = async (
 
 export const createApprove = async (
     publicKey: string,
-    tokenId: number,
+    idToken: number,
     contractCode: string,
-    chainId: string
-): Promise<Approve> => {
+    chainId: number
+): Promise<string> => {
     const api = useAxiosInstance();
 
     try {
@@ -42,7 +41,7 @@ export const createApprove = async (
             "/approve/createApprove",
             {
                 publicKey,
-                tokenId,
+                idToken,
                 contractCode,
                 chainId,
             }
@@ -50,7 +49,7 @@ export const createApprove = async (
 
         if (response.status !== 200) throw Error;
 
-        return new Approve(response.data);
+        return response.data;
     } catch (error) {
         console.log(error);
 

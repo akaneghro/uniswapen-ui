@@ -2,6 +2,8 @@
 import { formatAccount } from "~/utils/formatFunctions";
 
 const connectionStore = useConnectionStore();
+
+const networkStore = useNetworkStore();
 </script>
 
 <template>
@@ -10,14 +12,9 @@ const connectionStore = useConnectionStore();
             <p>Uniswapen V1</p>
             <div class="flex justify-center items-center">
                 <img
-                    src="/images/polygon.svg"
-                    class="cursor-pointer transition ease-in-out hover:scale-125 duration-300 h-6 mr-5"
-                    :class="
-                        connectionStore.isConnectedPolygon
-                            ? 'opacity-100'
-                            : 'opacity-25'
-                    "
-                    @click="connectionStore.connect()"
+                    v-if="networkStore.currentNetwork"
+                    :src="networkStore.currentNetwork?.logo"
+                    class="transition ease-in-out hover:scale-125 duration-300 h-6 mr-5"
                 />
                 <p class="cursor-default text-s">
                     {{ formatAccount(connectionStore.owner) }}

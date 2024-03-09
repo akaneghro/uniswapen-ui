@@ -1,6 +1,6 @@
 export class PositionRequest {
     publicKey: string = "";
-    chainId: string = "";
+    chainId: number = 0;
     idToken0: number = 0;
     idToken1: number = 0;
     amount0: string = "";
