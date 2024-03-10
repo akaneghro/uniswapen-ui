@@ -3,6 +3,8 @@ import { create } from "../services/position.api";
 import { Token } from "~/models/Token";
 import { Price } from "~/models/Price";
 import { PositionRequest } from "~/models/PositionRequest";
+import { PERCENTAGE_RANGE } from "~/utils/constants/ranges";
+import { validateNumericInput } from "~/utils/formFunctions";
 
 export const useLiquidityForm = () => {
     const connectionStore = useConnectionStore();
@@ -18,14 +20,37 @@ export const useLiquidityForm = () => {
     const token1UsdPrice: Ref<string> = ref("");
     const balance0: Ref<string> = ref("");
     const balance1: Ref<string> = ref("");
-    const range: Ref<string> = ref("");
+    const selectedRangeType: Ref<string> = ref("");
     const lowerRange: Ref<string> = ref("");
     const upperRange: Ref<string> = ref("");
+    const lowerRangeInput: Ref<string> = ref("");
+    const upperRangeInput: Ref<string> = ref("");
+    const invalidUpperRange: Ref<boolean> = ref(false);
+    const invalidLowerRange: Ref<boolean> = ref(false);
     const amount0: Ref<string> = ref("");
     const amount1: Ref<string> = ref("");
+    const invalidAmount0: Ref<boolean> = ref(false);
+    const invalidAmount1: Ref<boolean> = ref(false);
     const fee: Ref<number> = ref(0);
     const priceInterval: Ref<NodeJS.Timeout | null> = ref(null);
     const setBalanceError: Ref<boolean> = ref(false);
+    const openToken0Modal = ref(false);
+    const openToken1Modal = ref(false);
+
+    const invalidRanges = computed(() => {
+        return (
+            invalidLowerRange.value ||
+            invalidUpperRange.value ||
+            (lowerRangeInput.value &&
+                upperRangeInput.value &&
+                selectedRangeType.value !== PERCENTAGE_RANGE &&
+                Number(lowerRangeInput.value) >= Number(upperRangeInput.value))
+        );
+    });
+
+    const invalidAmounts = computed(() => {
+        return invalidAmount0.value || invalidAmount1.value;
+    });
 
     const setToken0 = (token: Token) => {
         token0.value = token;
@@ -69,7 +94,6 @@ export const useLiquidityForm = () => {
             balance1.value = token1Balance;
         } catch (error) {
             setBalanceError.value = true;
-            console.log(error);
         }
     };
 
@@ -88,48 +112,95 @@ export const useLiquidityForm = () => {
             clearInterval(priceInterval.value as NodeJS.Timeout);
     };
 
-    const setRange = (event: any) => {
+    const setLowerRange = (event: any) => {
+        invalidLowerRange.value = false;
+
         if (event.target.value === "") {
             lowerRange.value = "";
+            return;
+        }
+
+        if (!validateNumericInput(event)) {
+            invalidLowerRange.value = true;
+            return;
+        }
+
+        if (selectedRangeType.value === PERCENTAGE_RANGE) {
+            lowerRange.value = (
+                parseFloat(poolPrice.value) *
+                (1 - Number(event.target.value) / 100)
+            ).toFixed(token1.value?.decimals ?? 0);
+        } else {
+            lowerRange.value = event.target.value;
+        }
+    };
+
+    const setUpperRange = (event: any) => {
+        invalidUpperRange.value = false;
+
+        if (event.target.value === "") {
             upperRange.value = "";
             return;
         }
 
-        if (!validateNumericInput(event)) return;
+        if (!validateNumericInput(event)) {
+            invalidUpperRange.value = true;
+            return;
+        }
 
-        range.value = event.target.value;
+        if (selectedRangeType.value === PERCENTAGE_RANGE) {
+            upperRange.value = (
+                parseFloat(poolPrice.value) *
+                (1 + Number(event.target.value) / 100)
+            ).toFixed(token1.value?.decimals ?? 0);
+        } else {
+            upperRange.value = event.target.value;
+        }
+    };
 
-        lowerRange.value = (
-            parseFloat(poolPrice.value) *
-            (1 - Number(range.value) / 100)
-        ).toFixed(token1.value?.decimals ?? 0);
-
-        upperRange.value = (
-            parseFloat(poolPrice.value) *
-            (1 + Number(range.value) / 100)
-        ).toFixed(token1.value?.decimals ?? 0);
+    const cleanRanges = () => {
+        lowerRange.value = "";
+        upperRange.value = "";
+        lowerRangeInput.value = "";
+        upperRangeInput.value = "";
+        invalidLowerRange.value = false;
+        invalidUpperRange.value = false;
     };
 
     const setAmount0 = (event: any) => {
+        invalidAmount0.value = false;
+
         if (!token0.value || !token1.value) return;
 
-        if (!validateNumericInput(event)) return;
+        if (!validateNumericInput(event)) {
+            invalidAmount0.value = true;
+            return;
+        }
 
         amount0.value = (
             Number(amount1.value) / parseFloat(poolPrice.value)
         ).toFixed(token0.value.decimals);
 
+        if (amount0.value > balance0.value) invalidAmount0.value = true;
+
         if (!amount1.value) amount0.value = "";
     };
 
     const setAmount1 = (event: any) => {
+        invalidAmount1.value = false;
+
         if (!token0.value || !token1.value) return;
 
-        if (!validateNumericInput(event)) return;
+        if (!validateNumericInput(event)) {
+            invalidAmount1.value = true;
+            return;
+        }
 
         amount1.value = (
             Number(amount0.value) * parseFloat(poolPrice.value)
         ).toFixed(token1.value.decimals);
+
+        if (amount1.value > balance1.value) invalidAmount1.value = true;
 
         if (!amount0.value) amount1.value = "";
     };
@@ -148,6 +219,16 @@ export const useLiquidityForm = () => {
         amount1.value = balance1.value;
 
         setAmount0(amount1.value);
+    };
+
+    const selectToken0 = (token: Token) => {
+        setToken0(token);
+        openToken0Modal.value = false;
+    };
+
+    const selectToken1 = (token: Token) => {
+        setToken1(token);
+        openToken1Modal.value = false;
     };
 
     const addLiquidity = async (): Promise<boolean> => {
@@ -173,8 +254,9 @@ export const useLiquidityForm = () => {
                     idToken1: token1.value.idToken,
                     amount0: amount0.value,
                     amount1: amount1.value,
+                    lowerRange: lowerRange.value,
+                    upperRange: upperRange.value,
                     fee: fee.value,
-                    range: parseFloat(range.value) / 100,
                 })
             );
         } finally {
@@ -184,8 +266,6 @@ export const useLiquidityForm = () => {
 
     return {
         isAddingLiquidity,
-        setToken0,
-        setToken1,
         token0,
         token1,
         poolPrice,
@@ -195,20 +275,28 @@ export const useLiquidityForm = () => {
         balance0,
         balance1,
         setBalances,
-        range,
-        lowerRange,
-        upperRange,
-        setRange,
+        selectedRangeType,
+        lowerRangeInput,
+        upperRangeInput,
+        setLowerRange,
+        setUpperRange,
+        cleanRanges,
+        invalidRanges,
         amount0,
         amount1,
         setAmount0,
         setAmount1,
         setMaxAmount0,
         setMaxAmount1,
+        invalidAmounts,
         fee,
         addLiquidity,
         startDataInterval,
         stopDataInterval,
         setBalanceError,
+        openToken0Modal,
+        openToken1Modal,
+        selectToken0,
+        selectToken1,
     };
 };

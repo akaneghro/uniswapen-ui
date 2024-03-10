@@ -1,18 +1,7 @@
-<script lang="ts" setup>
-defineProps({
-    showAlert: {
-        type: Boolean,
-        required: false,
-        default: false,
-    },
-});
-</script>
+<script lang="ts" setup></script>
 
 <template>
-    <div
-        class="bg-slate-800 rounded-2xl border border-slate-600 p-3"
-        :class="!showAlert ? 'border-slate-600' : 'border-red-500'"
-    >
+    <div class="bg-slate-800 rounded-2xl border border-slate-600 p-3">
         <slot />
     </div>
 </template>

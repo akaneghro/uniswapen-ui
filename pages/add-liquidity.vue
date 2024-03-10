@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { FEE_TIERS } from "~/utils/constants/fees";
+import { PERCENTAGE_RANGE, PRICE_RANGE } from "~/utils/constants/ranges";
 
 definePageMeta({
     title: "Add liquidity",
@@ -10,8 +11,6 @@ const tokenStore = useTokenStore();
 
 const {
     isAddingLiquidity,
-    setToken0,
-    setToken1,
     token0,
     token1,
     poolPrice,
@@ -23,19 +22,27 @@ const {
     setBalances,
     amount0,
     amount1,
-    range,
-    lowerRange,
-    upperRange,
-    setRange,
+    selectedRangeType,
+    lowerRangeInput,
+    upperRangeInput,
+    setLowerRange,
+    setUpperRange,
+    cleanRanges,
+    invalidRanges,
     setAmount0,
     setAmount1,
     setMaxAmount0,
     setMaxAmount1,
+    invalidAmounts,
     addLiquidity,
     fee,
     startDataInterval,
     stopDataInterval,
     setBalanceError,
+    openToken0Modal,
+    openToken1Modal,
+    selectToken0,
+    selectToken1,
 } = useLiquidityForm();
 
 const {
@@ -57,7 +64,7 @@ const {
 
 watch([() => token0.value, () => token1.value, () => fee.value], async () => {
     if (token0.value && token1.value) {
-        if (token0.value?.idToken !== 0 && token1.value?.idToken !== 0) {
+        if (token0.value && token1.value) {
             await checkApprovePositionManager(
                 token0.value.idToken,
                 isApprovedPM0
@@ -80,11 +87,6 @@ watch([() => token0.value, () => token1.value, () => fee.value], async () => {
         }
     }
 });
-
-onMounted(async () => {
-    setToken0(tokenStore.tokens.find((token) => token.code === "USDCE_POL")!);
-    setToken1(tokenStore.tokens.find((token) => token.code === "WETH_POL")!);
-});
 </script>
 
 <template>
@@ -95,21 +97,29 @@ onMounted(async () => {
             textBack="Back to positions"
         >
             <div class="flex flex-row">
-                <ButtonSelect :showText="!token0" class="mr-2">
+                <TokenSelectButton
+                    :showText="!token0"
+                    class="mr-2"
+                    @click="openToken0Modal = true"
+                >
                     <TokenTag
                         :coinLogo="token0?.logo"
                         :coinSymbol="token0?.symbol"
                     />
-                </ButtonSelect>
-                <ButtonSelect :showText="!token1" class="ml-2">
+                </TokenSelectButton>
+                <TokenSelectButton
+                    :showText="!token1"
+                    class="ml-2"
+                    @click="openToken1Modal = true"
+                >
                     <TokenTag
                         :coinLogo="token1?.logo"
                         :coinSymbol="token1?.symbol"
                     />
-                </ButtonSelect>
+                </TokenSelectButton>
             </div>
 
-            <div class="mt-8">
+            <div v-if="token0 && token1" class="mt-8">
                 <p>Fee tier</p>
                 <div class="mt-3">
                     <div class="flex justify-between">
@@ -124,24 +134,87 @@ onMounted(async () => {
                 </div>
             </div>
 
-            <div class="mt-8">
-                <p>Set range (%)</p>
+            <div v-if="token0 && token1" class="mt-8">
+                <div class="flex flex-row justify-between content-center">
+                    <p>{{ `Set ${selectedRangeType} range` }}</p>
+                    <div class="flex">
+                        <InputRadio
+                            :id="PERCENTAGE_RANGE"
+                            :value="PERCENTAGE_RANGE"
+                            name="rangeType"
+                            :label="PERCENTAGE_RANGE"
+                            v-model="selectedRangeType"
+                            @click="cleanRanges()"
+                            class="ml-5"
+                        />
+                        <InputRadio
+                            :id="PRICE_RANGE"
+                            :value="PRICE_RANGE"
+                            name="rangeType"
+                            :label="PRICE_RANGE"
+                            v-model="selectedRangeType"
+                            @click="cleanRanges()"
+                            class="ml-5"
+                        />
+                    </div>
+                </div>
+
                 <div class="mt-3">
                     <InputRange
-                        :lowerRange="lowerRange ?? '-'"
-                        :upperRange="upperRange ?? '-'"
+                        :title="`Lower ${selectedRangeType}`"
+                        :token0Symbol="token0?.symbol"
+                        :token1Symbol="token1?.symbol"
+                        :showText="!selectedRangeType ? true : false"
                     >
                         <Input
-                            v-model="range"
-                            @input="setRange($event)"
+                            v-if="selectedRangeType === PERCENTAGE_RANGE"
+                            v-model="lowerRangeInput"
+                            @input="setLowerRange($event)"
                             placeholder="0.0%"
+                            :disabled="!fee"
+                        />
+                        <Input
+                            v-else-if="selectedRangeType === PRICE_RANGE"
+                            v-model="lowerRangeInput"
+                            @input="setLowerRange($event)"
+                            placeholder="0.0"
                             :disabled="!fee"
                         />
                     </InputRange>
                 </div>
+
+                <div class="mt-3">
+                    <InputRange
+                        :title="`Upper ${selectedRangeType}`"
+                        :token0Symbol="token0?.symbol"
+                        :token1Symbol="token1?.symbol"
+                        :showText="!selectedRangeType ? true : false"
+                    >
+                        <Input
+                            v-if="selectedRangeType === PERCENTAGE_RANGE"
+                            v-model="upperRangeInput"
+                            @input="setUpperRange($event)"
+                            placeholder="0.0%"
+                            :disabled="!fee"
+                        />
+                        <Input
+                            v-else-if="selectedRangeType === PRICE_RANGE"
+                            v-model="upperRangeInput"
+                            @input="setUpperRange($event)"
+                            placeholder="0.0"
+                            :disabled="!fee"
+                        />
+                    </InputRange>
+                </div>
+
+                <InputAlert
+                    v-if="invalidRanges"
+                    message="Invalid ranges"
+                    class="mt-3"
+                />
             </div>
 
-            <div class="mt-8">
+            <div v-if="token0 && token1" class="mt-8">
                 <p class="text-sm mb-1">Current price:</p>
                 <p class="text-lg font-bold">$ {{ poolPrice }}</p>
                 <p class="text-sm text-slate-400 mt-1">
@@ -149,7 +222,7 @@ onMounted(async () => {
                 </p>
             </div>
 
-            <div class="mt-8">
+            <div v-if="token0 && token1" class="mt-8">
                 <p>Deposit amounts</p>
                 <div class="mt-3">
                     <InputAmount
@@ -196,10 +269,16 @@ onMounted(async () => {
                         />
                     </InputAmount>
                 </div>
+
+                <InputAlert
+                    v-if="invalidAmounts"
+                    message="Invalid amounts"
+                    class="mt-3"
+                />
             </div>
 
             <Button
-                v-if="!isApprovedPM0"
+                v-if="token0 && !isApprovedPM0"
                 :title="`Approve Position Manager ${token0?.symbol}`"
                 :disabled="isLoading"
                 :isLoading="isApprovingPM0"
@@ -213,7 +292,7 @@ onMounted(async () => {
                 class="mt-8"
             />
             <Button
-                v-if="!isApprovedSR0"
+                v-if="token0 && !isApprovedSR0"
                 :title="`Approve Swap Router ${token0?.symbol}`"
                 :disabled="isLoading"
                 :isLoading="isApprovingSR0"
@@ -227,7 +306,7 @@ onMounted(async () => {
                 class="mt-5"
             />
             <Button
-                v-if="!isApprovedPM1"
+                v-if="token1 && !isApprovedPM1"
                 :title="`Approve Position Manager ${token1?.symbol}`"
                 :disabled="isLoading"
                 :isLoading="isApprovingPM1"
@@ -241,7 +320,7 @@ onMounted(async () => {
                 class="mt-8"
             />
             <Button
-                v-if="!isApprovedSR1"
+                v-if="token1 && !isApprovedSR1"
                 :title="`Approve Swap Router ${token1?.symbol}`"
                 :disabled="isLoading"
                 :isLoading="isApprovingSR1"
@@ -256,13 +335,39 @@ onMounted(async () => {
             />
 
             <Button
-                v-if="isAllApproved"
+                v-if="isAllApproved && token0 && token1"
                 title="Add liquidity"
                 :isLoading="isAddingLiquidity"
                 @click="addLiquidity()"
                 class="mt-8"
             />
         </Container>
+
+        <Modal v-if="openToken0Modal" @closeModal="openToken0Modal = false">
+            <TokenTag
+                v-for="token in tokenStore.tokens.filter(
+                    (t) => t.idToken !== 0
+                )"
+                :key="token.idToken"
+                :coinLogo="token.logo"
+                :coinSymbol="token.symbol"
+                class="cursor-pointer p-4 border border-slate-500 m-4"
+                @click="selectToken0(token)"
+            />
+        </Modal>
+
+        <Modal v-if="openToken1Modal" @closeModal="openToken1Modal = false">
+            <TokenTag
+                v-for="token in tokenStore.tokens.filter(
+                    (t) => t.idToken !== token0?.idToken
+                )"
+                :key="token.idToken"
+                :coinLogo="token.logo"
+                :coinSymbol="token.symbol"
+                class="cursor-pointer p-4 border border-slate-600 m-4"
+                @click="selectToken1(token)"
+            />
+        </Modal>
 
         <ButtonFloat
             v-if="setBalanceError"

@@ -1,12 +1,21 @@
 <script lang="ts" setup>
 defineProps({
-    lowerRange: {
+    title: {
         type: String,
         required: true,
     },
-    upperRange: {
+    token0Symbol: {
         type: String,
         required: true,
+    },
+    token1Symbol: {
+        type: String,
+        required: true,
+    },
+    showText: {
+        type: Boolean,
+        required: false,
+        default: true,
     },
 });
 </script>
@@ -14,11 +23,14 @@ defineProps({
 <template>
     <ContainerInside>
         <div>
+            <p class="text-slate-400 text-sm mb-1">{{ title }}</p>
+
+            <p v-if="showText" class="text-white">Select the range type</p>
+
             <slot />
-            <p class="text-slate-400 text-sm mt-2">
-                Min: <span class="text-white">{{ lowerRange }}</span>
-                <span class="text-white"> ⇿ </span>Max:
-                <span class="text-white">{{ upperRange }}</span>
+
+            <p class="text-slate-400 text-sm mt-1">
+                {{ token1Symbol }} per {{ token0Symbol }}
             </p>
         </div>
     </ContainerInside>

@@ -15,7 +15,7 @@ export const create = async (position: PositionRequest): Promise<boolean> => {
 
         if (response.status !== 200) throw Error;
 
-        return response.data;
+        return response.data as boolean;
     } catch (error) {
         console.log(error);
 
@@ -42,7 +42,7 @@ export const getAll = async (
 
         if (response.status !== 200) throw Error;
 
-        return response.data;
+        return response.data as PositionData[];
     } catch (error: any) {
         console.log(error);
 
@@ -80,8 +80,6 @@ export const close = async (
     const api = useAxiosInstance();
 
     try {
-        console.log(publicKey, tokenId);
-
         const response: AxiosResponse = await api.post(
             "/position/closePosition",
             {
@@ -92,9 +90,7 @@ export const close = async (
 
         if (response.status !== 200) throw Error;
 
-        console.log(response.data);
-
-        return response.data;
+        return response.data as boolean;
     } catch (error) {
         console.log(error);
 
