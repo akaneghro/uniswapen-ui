@@ -1,4 +1,4 @@
-import { getAll } from "~/services/position.api";
+import { getAll } from "~/apis/position.api";
 import { PositionData } from "~/models/PositionData";
 
 export const usePositionList = () => {

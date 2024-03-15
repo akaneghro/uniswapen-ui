@@ -2,7 +2,7 @@ import {
     POSITION_MANAGER_CODE,
     SWAP_ROUTER_CODE,
 } from "~/utils/constants/contracts";
-import { checkApprove, createApprove } from "~/services/approve.api";
+import { checkApprove, createApprove } from "~/apis/approve.api";
 
 export const useApproveManager = () => {
     const connectionStore = useConnectionStore();

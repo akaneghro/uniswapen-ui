@@ -1,6 +1,6 @@
 import { Wallet } from "~/models/Wallet";
-import { checkSecret } from "~/services/global.api";
-import { createWallet, getWallet } from "~/services/wallet.api";
+import { checkSecret } from "~/apis/global.api";
+import { createWallet, findWallet, getWallet } from "~/apis/wallet.api";
 
 export const useWalletManager = () => {
     const connectionStore = useConnectionStore();
@@ -37,17 +37,13 @@ export const useWalletManager = () => {
     ): Promise<string> => {
         const isValidPassword = await checkSecret(password);
 
-        console.log(isValidPassword);
-
         if (!isValidPassword) return "";
 
         return encrypt(secret, password);
     };
 
     const checkWalletExists = async (): Promise<boolean> => {
-        const response = await getWallet(connectionStore.owner);
-
-        return response ? true : false;
+        return await findWallet(connectionStore.owner);
     };
 
     const getWalletData = async () => {

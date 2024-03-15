@@ -1,4 +1,4 @@
-import { get, close } from "~/services/position.api";
+import { get, close } from "~/apis/position.api";
 import { PositionData } from "~/models/PositionData";
 
 export const usePositionManage = () => {

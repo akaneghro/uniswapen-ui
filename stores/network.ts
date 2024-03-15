@@ -1,4 +1,4 @@
-import { getNetworks } from "~/services/network.api";
+import { getNetworks } from "~/apis/network.api";
 import { Network } from "~/models/Network";
 
 export const useNetworkStore = defineStore("network", () => {

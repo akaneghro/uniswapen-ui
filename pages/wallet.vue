@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import { formatAccount } from "../utils/formatFunctions";
-import { copyToClipboard } from "../utils/formFunctions";
-
 definePageMeta({
     title: "New wallet",
     layout: "simple",

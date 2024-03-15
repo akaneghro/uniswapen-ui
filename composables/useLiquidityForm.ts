@@ -1,10 +1,11 @@
-import { getCurrentPrices } from "../services/pool.api";
-import { create } from "../services/position.api";
+import { getCurrentPrices } from "../apis/pool.api";
+import { create } from "../apis/position.api";
 import { Token } from "~/models/Token";
 import { Price } from "~/models/Price";
 import { PositionRequest } from "~/models/PositionRequest";
-import { PERCENTAGE_RANGE } from "~/utils/constants/ranges";
+import { PERCENTAGE_RANGE, PRICE_RANGE } from "~/utils/constants/ranges";
 import { validateNumericInput } from "~/utils/formFunctions";
+import { StrategyParams } from "~/models/StrategyParams";
 
 export const useLiquidityForm = () => {
     const connectionStore = useConnectionStore();
@@ -21,8 +22,7 @@ export const useLiquidityForm = () => {
     const balance0: Ref<string> = ref("");
     const balance1: Ref<string> = ref("");
     const selectedRangeType: Ref<string> = ref("");
-    const lowerRange: Ref<string> = ref("");
-    const upperRange: Ref<string> = ref("");
+    const strategyParams: Ref<StrategyParams> = ref(new StrategyParams());
     const lowerRangeInput: Ref<string> = ref("");
     const upperRangeInput: Ref<string> = ref("");
     const invalidUpperRange: Ref<boolean> = ref(false);
@@ -116,7 +116,7 @@ export const useLiquidityForm = () => {
         invalidLowerRange.value = false;
 
         if (event.target.value === "") {
-            lowerRange.value = "";
+            strategyParams.value.lowerRangeRatio = 0;
             return;
         }
 
@@ -125,13 +125,17 @@ export const useLiquidityForm = () => {
             return;
         }
 
-        if (selectedRangeType.value === PERCENTAGE_RANGE) {
-            lowerRange.value = (
-                parseFloat(poolPrice.value) *
-                (1 - Number(event.target.value) / 100)
-            ).toFixed(token1.value?.decimals ?? 0);
-        } else {
-            lowerRange.value = event.target.value;
+        if (selectedRangeType.value === PRICE_RANGE) {
+            strategyParams.value.lowerRangeRatio = parseFloat(
+                (
+                    1 -
+                    parseFloat(event.target.value) / parseFloat(poolPrice.value)
+                ).toFixed(2)
+            );
+        } else if (selectedRangeType.value === PERCENTAGE_RANGE) {
+            strategyParams.value.lowerRangeRatio = parseFloat(
+                (event.target.value / 100).toFixed(2)
+            );
         }
     };
 
@@ -139,7 +143,7 @@ export const useLiquidityForm = () => {
         invalidUpperRange.value = false;
 
         if (event.target.value === "") {
-            upperRange.value = "";
+            strategyParams.value.upperRangeRatio = 0;
             return;
         }
 
@@ -148,19 +152,24 @@ export const useLiquidityForm = () => {
             return;
         }
 
-        if (selectedRangeType.value === PERCENTAGE_RANGE) {
-            upperRange.value = (
-                parseFloat(poolPrice.value) *
-                (1 + Number(event.target.value) / 100)
-            ).toFixed(token1.value?.decimals ?? 0);
-        } else {
-            upperRange.value = event.target.value;
+        if (selectedRangeType.value === PRICE_RANGE) {
+            strategyParams.value.upperRangeRatio = parseFloat(
+                (
+                    parseFloat(event.target.value) /
+                        parseFloat(poolPrice.value) -
+                    1
+                ).toFixed(2)
+            );
+        } else if (selectedRangeType.value === PERCENTAGE_RANGE) {
+            strategyParams.value.upperRangeRatio = parseFloat(
+                (event.target.value / 100).toFixed(2)
+            );
         }
     };
 
     const cleanRanges = () => {
-        lowerRange.value = "";
-        upperRange.value = "";
+        strategyParams.value.lowerRangeRatio = 0;
+        strategyParams.value.upperRangeRatio = 0;
         lowerRangeInput.value = "";
         upperRangeInput.value = "";
         invalidLowerRange.value = false;
@@ -242,7 +251,11 @@ export const useLiquidityForm = () => {
             if (Number(amount0.value) <= 0 || Number(amount1.value) <= 0)
                 return false;
 
-            if (!lowerRange.value || !upperRange.value) return false;
+            if (
+                !strategyParams.value.lowerRangeRatio ||
+                !strategyParams.value.upperRangeRatio
+            )
+                return false;
 
             if (fee.value == 0) return false;
 
@@ -252,11 +265,10 @@ export const useLiquidityForm = () => {
                     chainId: networkStore.currentNetwork?.chainId ?? 0,
                     idToken0: token0.value.idToken,
                     idToken1: token1.value.idToken,
+                    fee: fee.value,
                     amount0: amount0.value,
                     amount1: amount1.value,
-                    lowerRange: lowerRange.value,
-                    upperRange: upperRange.value,
-                    fee: fee.value,
+                    strategyParams: strategyParams.value,
                 })
             );
         } finally {

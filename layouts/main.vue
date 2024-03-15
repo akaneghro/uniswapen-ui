@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { formatAccount } from "~/utils/formatFunctions";
-
 const connectionStore = useConnectionStore();
 
 const networkStore = useNetworkStore();

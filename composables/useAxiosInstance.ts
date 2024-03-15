@@ -13,8 +13,11 @@ export const useAxiosInstance = () => {
                 return response;
             },
             (error: any) => {
-                if (error.response.status === 401) {
-                    // Do something here
+                if (!error.response) {
+                    console.log("Network error");
+                    return Promise.reject(error);
+                } else if (error.response.status === 401) {
+                    console.log("Unauthorized");
                 } else throw error;
             }
         );

@@ -19,7 +19,27 @@ export const createWallet = async (wallet: Wallet): Promise<Wallet> => {
     }
 };
 
-export const getWallet = async (publicKey: string): Promise<Wallet | null> => {
+export const findWallet = async (publicKey: string): Promise<boolean> => {
+    const api = useAxiosInstance();
+
+    try {
+        const response: AxiosResponse = await api.get("/wallet/findWallet", {
+            params: {
+                publicKey,
+            },
+        });
+
+        if (response.status !== 200) throw Error;
+
+        return response.data as boolean;
+    } catch (error: any) {
+        console.log(error);
+
+        throw error;
+    }
+};
+
+export const getWallet = async (publicKey: string): Promise<Wallet> => {
     const api = useAxiosInstance();
 
     try {
@@ -31,12 +51,9 @@ export const getWallet = async (publicKey: string): Promise<Wallet | null> => {
 
         if (response.status !== 200) throw Error;
 
-        return response.data;
+        return response.data as Wallet;
     } catch (error: any) {
         console.log(error);
-
-        if (error.response.status === 503 || error.response.status === 404)
-            return null;
 
         throw error;
     }

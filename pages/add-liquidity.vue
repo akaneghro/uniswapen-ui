@@ -126,7 +126,7 @@ watch([() => token0.value, () => token1.value, () => fee.value], async () => {
                         <FeeTier
                             v-for="(feeTier, index) in FEE_TIERS"
                             :key="index"
-                            :title="feeTier.feeTier.toString()"
+                            :title="feeTier.feePercentage.toString()"
                             :isSelected="feeTier.fee === fee"
                             @click="fee = feeTier.fee"
                         />
@@ -335,7 +335,6 @@ watch([() => token0.value, () => token1.value, () => fee.value], async () => {
             />
 
             <Button
-                v-if="isAllApproved && token0 && token1"
                 title="Add liquidity"
                 :isLoading="isAddingLiquidity"
                 @click="addLiquidity()"

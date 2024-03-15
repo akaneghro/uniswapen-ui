@@ -11,8 +11,6 @@ export const getNetworks = async (): Promise<Network[]> => {
 
         return response.data as Network[];
     } catch (error) {
-        console.log(error);
-
         throw error;
     }
 };

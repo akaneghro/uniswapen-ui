@@ -1,0 +1,12 @@
+export class CustomError extends Error {
+    private code: number;
+
+    constructor(code: number, message: string) {
+        super(message);
+        this.code = code;
+    }
+
+    getCode(): number {
+        return this.code;
+    }
+}

@@ -1,4 +1,4 @@
-import { getTokens } from "~/services/token.api";
+import { getTokens } from "~/apis/token.api";
 import { Token } from "~/models/Token";
 
 export const useTokenStore = defineStore("token", () => {
