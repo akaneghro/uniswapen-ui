@@ -1,5 +1,4 @@
-import { Token } from "./Token";
-import { FeeTier } from "./FeeTier";
+import { PositionSerie } from "./PositionSerie";
 
 export class PositionData {
     tokenId: number = 0;
@@ -8,9 +7,7 @@ export class PositionData {
     currentPrice: string = "";
     creationDate: Date = new Date();
     isClosed: boolean = false;
-    token0: Token = new Token();
-    token1: Token = new Token();
-    feeTier: FeeTier = new FeeTier();
+    positionSerie: PositionSerie = new PositionSerie();
 
     constructor(positionData?: Partial<PositionData>) {
         if (positionData) {

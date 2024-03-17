@@ -17,3 +17,7 @@ export const formatDate = (input: Date): string => {
 
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 };
+
+export const calculatePercentage = (value: number, total: number): number => {
+    return (value / total) * 100;
+};

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { PositionData } from "~/models/PositionData";
+import { calculatePercentage } from "~/utils/formatFunctions";
 
 defineProps({
     title: {
@@ -7,6 +7,10 @@ defineProps({
         required: true,
     },
     price: {
+        type: String,
+        required: true,
+    },
+    currentPrice: {
         type: String,
         required: true,
     },
@@ -28,6 +32,16 @@ defineProps({
         <p class="text-slate-300 mt-2">
             {{ token1Symbol }} per
             {{ token0Symbol }}
+        </p>
+        <p class="text-sm text-slate-400 mt-4">
+            {{
+                (
+                    calculatePercentage(
+                        parseFloat(price),
+                        parseFloat(currentPrice)
+                    ) - 100
+                ).toFixed(2)
+            }}% from current
         </p>
     </ContainerInside>
 </template>

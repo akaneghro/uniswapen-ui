@@ -3,8 +3,7 @@ export class Wallet {
     publicKey: string = "";
     secret: string = "";
     aliasWallet: string = "";
-    creationDate: Date = new Date();
-    modificationDate: Date = new Date();
+    creationDate: Date;
     idWalletState: number = 0;
 
     constructor(wallet?: Partial<Wallet>) {

@@ -3,7 +3,7 @@
 <template>
     <div class="flex flex-row justify-between">
         <TextTitle text="Positions" />
-        <ButtonSmall
+        <ButtonSmallSolid
             title="+ New position"
             @click="useRouter().push('/add-liquidity')"
         />

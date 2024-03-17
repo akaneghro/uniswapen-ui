@@ -19,32 +19,42 @@ onMounted(async () => {
 
 <template>
     <div class="pt-12 pb-12">
-        <Container :back="true">
+        <Container :back="true" class="relative">
+            <PositionStatus
+                :position="positionData"
+                :showCircle="true"
+                class="absolute top-4 right-4"
+            />
+
             <div class="flex flex-row justify-between">
                 <div class="flex flex-row items-baseline">
                     <p class="text-xl">
                         <a
-                            :href="`https://polygonscan.com/token/${positionData.token0.address}`"
+                            :href="`https://polygonscan.com/token/${positionData.positionSerie.token0.address}`"
                             target="_blank"
-                            >{{ positionData.token0.symbol }}</a
+                            >{{ positionData.positionSerie.token0.symbol }}</a
                         >
                         /
                         <a
-                            :href="`https://polygonscan.com/token/${positionData.token1.address}`"
+                            :href="`https://polygonscan.com/token/${positionData.positionSerie.token1.address}`"
                             target="_blank"
-                            >{{ positionData.token1.symbol }}</a
+                            >{{ positionData.positionSerie.token1.symbol }}</a
                         >
                     </p>
 
                     <p class="text-lg text-gray-400 ml-4">
-                        {{ positionData.feeTier.feePercentage }}
+                        {{ positionData.positionSerie.feeTier.feePercentage }}
                     </p>
 
-                    <PositionStatus :position="positionData" class="ml-6" />
+                    <a
+                        :href="`https://app.uniswap.org/pools/${positionData.tokenId}`"
+                        target="_blank"
+                        ><IconExternalLink :size="20" class="ml-4"
+                    /></a>
                 </div>
                 <div>
                     <ButtonSmall title="Add liquidity" />
-                    <ButtonSmall
+                    <ButtonSmallSolid
                         v-if="!positionData.isClosed"
                         title="Close position"
                         class="ml-4"
@@ -60,19 +70,38 @@ onMounted(async () => {
                     <PositionPriceRange
                         title="Min price"
                         :price="positionData.lowerPrice"
-                        :token0Symbol="positionData.token0.symbol"
-                        :token1Symbol="positionData.token1.symbol"
+                        :currentPrice="positionData.currentPrice"
+                        :token0Symbol="positionData.positionSerie.token0.symbol"
+                        :token1Symbol="positionData.positionSerie.token1.symbol"
                         class="mr-2"
                     />
 
                     <PositionPriceRange
                         title="Max price"
                         :price="positionData.upperPrice"
-                        :token0Symbol="positionData.token0.symbol"
-                        :token1Symbol="positionData.token1.symbol"
+                        :currentPrice="positionData.currentPrice"
+                        :token0Symbol="positionData.positionSerie.token0.symbol"
+                        :token1Symbol="positionData.positionSerie.token1.symbol"
                         class="ml-2"
                     />
                 </div>
+            </div>
+            <div class="mt-8">
+                <p>Current Price</p>
+                <p class="mt-3">
+                    {{ positionData.currentPrice }}
+                    <span class="text-gray-400 ml-2"
+                        >{{ positionData.positionSerie.token1.symbol }} per
+                        {{ positionData.positionSerie.token0.symbol }}</span
+                    >
+                </p>
+            </div>
+            <div class="mt-8">
+                <p>Strategy</p>
+                <p>Serie: {{ positionData.positionSerie.idPositionSerie }}</p>
+                <p class="text-gray-400 mt-3">
+                    {{ positionData.positionSerie.strategyParams }}
+                </p>
             </div>
         </Container>
     </div>

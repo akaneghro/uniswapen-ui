@@ -8,52 +8,55 @@ defineProps({
         required: true,
     },
 });
+
+const isHovered = ref(false);
 </script>
 
 <template>
-    <div class="border-t py-4">
+    <div
+        class="group relative border-t py-4"
+        @mouseover="isHovered = true"
+        @mouseleave="isHovered = false"
+    >
         <div class="flex flex-row justify-between">
             <div class="flex flex-row">
                 <p>
-                    <a
-                        :href="`https://polygonscan.com/token/${positionData.token0.address}`"
-                        target="_blank"
-                        >{{ positionData.token0.symbol }}</a
-                    >
+                    ({{ positionData.positionSerie.idPositionSerie }})
+                    {{ positionData.positionSerie.token0.symbol }}
                     /
-                    <a
-                        :href="`https://polygonscan.com/token/${positionData.token1.address}`"
-                        target="_blank"
-                        >{{ positionData.token1.symbol }}</a
-                    >
+                    {{ positionData.positionSerie.token1.symbol }}
                 </p>
 
                 <p class="text-gray-400 ml-2">
-                    ({{ positionData.feeTier.feePercentage }}%)
-                </p>
-
-                <p class="text-gray-400 ml-2">
-                    - {{ formatDate(positionData.creationDate) }}
+                    ({{ positionData.positionSerie.feeTier.feePercentage }}%)
                 </p>
             </div>
 
             <PositionStatus :position="positionData" />
         </div>
 
-        <div class="flex flex-row justify-between mt-3">
-            <p class="underline">
-                <a
-                    :href="`https://app.uniswap.org/pools/${positionData.tokenId}`"
-                    target="_blank"
-                    >Ver en Uniswap</a
-                >
+        <div class="flex flex-col mt-3">
+            <p>
+                <span class="text-gray-400">Min:</span>
+                {{ positionData.lowerPrice }}
             </p>
 
-            <IconForward
-                @click="useRouter().push(`/positions/${positionData.tokenId}`)"
-                class="cursor-pointer"
-            />
+            <p>
+                <span class="text-gray-400">Max:</span>
+                {{ positionData.upperPrice }}
+            </p>
         </div>
+
+        <div class="mt-3">
+            <p class="text-xs text-gray-400">
+                Created: {{ formatDate(positionData.creationDate) }}
+            </p>
+        </div>
+
+        <IconForward
+            v-if="isHovered"
+            class="absolute right-2 top-1/2 opacity-0 group-hover:opacity-100"
+        />
     </div>
 </template>
 

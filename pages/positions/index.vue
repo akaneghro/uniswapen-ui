@@ -27,6 +27,8 @@ onMounted(async () => {
                 v-else
                 v-for="position in positions"
                 :positionData="position"
+                @click="useRouter().push(`/positions/${position.tokenId}`)"
+                class="cursor-pointer"
             />
         </Container>
     </div>

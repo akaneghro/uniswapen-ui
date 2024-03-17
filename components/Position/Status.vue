@@ -6,23 +6,42 @@ const props = defineProps({
         type: Object as PropType<PositionData>,
         required: true,
     },
+    showCircle: {
+        type: Boolean,
+        default: false,
+    },
 });
 </script>
 
 <template>
     <div>
-        <div v-if="position.isClosed" class="text-gray-500">Closed</div>
+        <div v-if="position.isClosed">
+            <div
+                v-if="showCircle"
+                class="rounded-full h-4 w-4 bg-gray-500"
+            ></div>
+            <p v-else class="text-gray-500">Closed</p>
+        </div>
 
         <div
             v-else-if="
                 props.position.currentPrice >= props.position.lowerPrice &&
                 props.position.currentPrice <= props.position.upperPrice
             "
-            class="text-green-400"
         >
-            In range
+            <div
+                v-if="showCircle"
+                class="rounded-full h-4 w-4 bg-green-400"
+            ></div>
+            <p v-else class="text-green-400">In range</p>
         </div>
-        <div v-else class="text-red-500">Out of range</div>
+        <div v-else>
+            <div
+                v-if="showCircle"
+                class="rounded-full h-4 w-4 bg-red-500"
+            ></div>
+            <p class="text-red-500">Out of range</p>
+        </div>
     </div>
 </template>
 
