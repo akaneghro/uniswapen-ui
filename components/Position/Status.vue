@@ -40,7 +40,7 @@ const props = defineProps({
                 v-if="showCircle"
                 class="rounded-full h-4 w-4 bg-red-500"
             ></div>
-            <p class="text-red-500">Out of range</p>
+            <p v-else class="text-red-500">Out of range</p>
         </div>
     </div>
 </template>

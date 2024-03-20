@@ -104,7 +104,7 @@ export const useLiquidityForm = () => {
 
             if (amount0.value) setAmount1(amount0.value);
             if (amount1.value) setAmount0(amount1.value);
-        }, 30 * 1000);
+        }, 10 * 1000);
     };
 
     const stopDataInterval = () => {
